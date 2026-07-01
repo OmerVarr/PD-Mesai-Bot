@@ -1,4 +1,16 @@
 require('dotenv').config();
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Render'ın botu kontrol edebilmesi için basit bir ana sayfa
+app.get('/', (req, res) => {
+    res.send('PD Mesai Bot Aktif!');
+});
+
+app.listen(PORT, () => {
+    console.log(`Web sunucusu ${PORT} portunda başarıyla başlatıldı.`);
+});
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const mongoose = require('mongoose');
 const fs = require('node:fs');
