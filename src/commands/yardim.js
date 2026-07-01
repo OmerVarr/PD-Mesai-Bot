@@ -18,7 +18,8 @@ module.exports = {
         'LSPD Mesai ve Destek Botu üzerindeki tüm aktif komutlar aşağıda listelenmiştir:\n\n' +
         '👮 **PERSONEL KOMUTLARI:**\n' +
         '• `/mesai sorgula` — Kendi mesai saatinizi ve aktif durumunuzu gösterir.\n' +
-        '• `/mesai aktif-memurlar` — O an aktif görevde olan memurların listesini gösterir.\n\n' +
+        '• `/mesai aktif-memurlar` — O an aktif görevde olan memurların listesini gösterir.\n' +
+        '• `/mesai siralama` — Tüm memurların mesai sıralamasını (leaderboard) gösterir.\n\n' +
         '⚙️ **YETKİLİ KOMUTLARI:** *(Manager, Supervisor, Highcommand)*\n' +
         '• `/mesai sorgula [memur]` — Belirtilen memurun mesai detaylarını sorgular.\n' +
         '• `/mesai ekle [memur]` — Memurun mesaisine süre ekler (Arayüz açar).\n' +

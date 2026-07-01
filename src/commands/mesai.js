@@ -123,6 +123,13 @@ module.exports = {
             .setDescription('Süresi azaltılacak memur.')
             .setRequired(true)
         )
+    )
+    
+    // 10. Siralama Subcommand
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('siralama')
+        .setDescription('Tüm memurların mesai sıralamasını (leaderboard) gösterir.')
     ),
 
   async execute(interaction) {
@@ -175,7 +182,7 @@ module.exports = {
     }
 
     // --- DIGER KOMUTLAR (Defer edilebilir) ---
-    await interaction.deferReply({ ephemeral: subcommand !== 'aktif-memurlar' });
+    await interaction.deferReply({ ephemeral: subcommand !== 'aktif-memurlar' && subcommand !== 'siralama' });
 
     // Erişim Engeli Kontrolü (Sorgula ve Aktifler için en az Memur veya Yetkili olmalıdır)
     if (!hasAccess()) {
@@ -474,6 +481,37 @@ module.exports = {
           await logChan.send({ embeds: [logEmbed] });
         }
       }
+    }
+    
+    // H. SIRALAMA (LEADERBOARD)
+    else if (subcommand === 'siralama') {
+      const topUsers = await UserTotal.find({ guildId: guild.id }).sort({ totalTime: -1 }).limit(10);
+      
+      if (topUsers.length === 0) {
+        return interaction.editReply({ content: 'ℹ️ Sunucuda henüz kayıtlı mesai verisi bulunmamaktadır.' });
+      }
+
+      const embed = new EmbedBuilder()
+        .setTitle('🏆 LSPD GÖREV SÜRESİ SIRALAMASI')
+        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\nEn çok mesai yapan ilk 10 memur aşağıda listelenmiştir:\n')
+        .setColor(0xF1C40F)
+        .setTimestamp()
+        .setThumbnail(guild.iconURL())
+        .setFooter({ text: 'LSPD Mesai Sıralama Sistemi', iconURL: guild.iconURL() });
+
+      let desc = embed.data.description;
+      const medals = ['🥇', '🥈', '🥉'];
+      
+      for (let i = 0; i < topUsers.length; i++) {
+        const userTotal = topUsers[i];
+        const rankEmoji = medals[i] || `🔹 **${i + 1}.**`;
+        desc += `${rankEmoji} <@${userTotal.userId}> — Toplam Süre: **${formatTime(userTotal.totalTime)}**\n`;
+      }
+      
+      desc += '\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
+      embed.setDescription(desc);
+
+      return interaction.editReply({ embeds: [embed] });
     }
   }
 };
