@@ -4,6 +4,7 @@ const {
 } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
 const { t } = require('../utils/i18n');
+const { disconnectFromVoice } = require('../utils/voice');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -74,6 +75,13 @@ module.exports = {
 
     // 3. Veritabanı Kaydını Sil
     await GuildConfig.deleteOne({ guildId: guild.id });
+
+    // Botu ses kanalından çıkar
+    try {
+      disconnectFromVoice(guild.id);
+    } catch (voiceErr) {
+      console.error('[Voice] Failed to disconnect from voice channel during setup-delete:', voiceErr);
+    }
 
     await interaction.editReply({
       content: t(config, 'kurulumSil.success', deletedCount)

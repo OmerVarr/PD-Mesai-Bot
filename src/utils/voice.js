@@ -1,4 +1,4 @@
-const { joinVoiceChannel } = require('@discordjs/voice');
+const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
 
 /**
  * Connects the bot client to a specified voice channel.
@@ -33,4 +33,20 @@ function connectToVoice(client, guildId, channelId) {
   }
 }
 
-module.exports = { connectToVoice };
+/**
+ * Disconnects the bot client from the voice channel in the specified guild.
+ * @param {string} guildId 
+ */
+function disconnectFromVoice(guildId) {
+  try {
+    const connection = getVoiceConnection(guildId);
+    if (connection) {
+      connection.destroy();
+      console.log(`[Voice] Disconnected and destroyed voice connection in guild: ${guildId}`);
+    }
+  } catch (error) {
+    console.error(`[Voice] Error disconnecting from voice channel in guild ${guildId}:`, error);
+  }
+}
+
+module.exports = { connectToVoice, disconnectFromVoice };
