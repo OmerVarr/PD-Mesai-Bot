@@ -1,144 +1,183 @@
-const { 
-  SlashCommandBuilder, 
-  PermissionFlagsBits, 
-  EmbedBuilder, 
-  ModalBuilder, 
-  TextInputBuilder, 
-  TextInputStyle, 
-  ActionRowBuilder 
+const {
+  SlashCommandBuilder,
+  PermissionFlagsBits,
+  EmbedBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder
 } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
 const Shift = require('../models/Shift');
 const UserTotal = require('../models/UserTotal');
 const { formatTime } = require('../utils/formatTime');
+const { t } = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('mesai')
     .setDescription('Mesai yönetim ve sorgulama komutları.')
-    
+
     // 1. Sorgula Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('sorgula')
+        .setNameLocalization('en-US', 'query')
         .setDescription('Bir memurun mesai bilgilerini sorgular.')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Queries shift information of an officer.')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Sorgulanacak memur.')
+            .setDescriptionLocalization('en-US', 'Officer to query.')
             .setRequired(false)
         )
     )
-    
+
     // 2. Aktif Memurlar Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('aktif-memurlar')
+        .setNameLocalization('en-US', 'active-officers')
         .setDescription('Şu an aktif mesaide olan memurları listeler.')
+        .setDescriptionLocalization('en-US', 'Lists officers currently on active duty.')
     )
-    
+
     // 3. Ayarla Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('ayarla')
+        .setNameLocalization('en-US', 'set')
         .setDescription('Bir memurun toplam mesai süresini ayarlar.')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Sets the total shift time of an officer.')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Süresi ayarlanacak memur.')
+            .setDescriptionLocalization('en-US', 'Officer whose time will be set.')
             .setRequired(true)
         )
-        .addNumberOption(option => 
+        .addNumberOption(option =>
           option.setName('saat')
+            .setNameLocalization('en-US', 'hours')
             .setDescription('Set edilecek toplam saat (Örn: 15.5)')
+            .setDescriptionLocalization('en-US', 'Total hours to set (e.g. 15.5)')
             .setRequired(true)
         )
     )
-    
+
     // 4. Sıfırla Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('sifirla')
+        .setNameLocalization('en-US', 'reset')
         .setDescription('Bir memurun mesai verilerini tamamen sıfırlar.')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Completely resets an officer\'s shift data.')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Verileri sıfırlanacak memur.')
+            .setDescriptionLocalization('en-US', 'Officer whose data will be reset.')
             .setRequired(true)
         )
     )
-    
+
     // 5. Başlat Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('baslat')
+        .setNameLocalization('en-US', 'start')
         .setDescription('Bir memuru manuel olarak mesaiye sokar.')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Manually starts duty for an officer.')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Mesaiye başlatılacak memur.')
+            .setDescriptionLocalization('en-US', 'Officer to start shift for.')
             .setRequired(true)
         )
     )
-    
+
     // 6. Bitir Ekle Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('bitir-ekle')
+        .setNameLocalization('en-US', 'end-add')
         .setDescription('Bir memurun mesaisini bitirip süreyi toplam mesaisine ekler.')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Ends shift and adds elapsed duration to total.')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Mesaisi bitirilecek memur.')
+            .setDescriptionLocalization('en-US', 'Officer whose shift will be ended.')
             .setRequired(true)
         )
     )
-    
+
     // 7. Bitir Ekleme Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('bitir-ekleme')
+        .setNameLocalization('en-US', 'end-cancel')
         .setDescription('Bir memurun mesaisini iptal eder (süreyi eklemez).')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Cancels active shift (does not add duration).')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Mesaisi iptal edilecek memur.')
+            .setDescriptionLocalization('en-US', 'Officer whose shift will be cancelled.')
             .setRequired(true)
         )
     )
-    
+
     // 8. Ekle Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('ekle')
+        .setNameLocalization('en-US', 'add')
         .setDescription('Bir memurun toplam mesai süresine süre ekler.')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Adds time to an officer\'s total shift duration.')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Süre eklenecek memur.')
+            .setDescriptionLocalization('en-US', 'Officer to add duration to.')
             .setRequired(true)
         )
     )
-    
+
     // 9. Azalt Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('azalt')
+        .setNameLocalization('en-US', 'reduce')
         .setDescription('Bir memurun toplam mesai süresinden süre düşer.')
-        .addUserOption(option => 
+        .setDescriptionLocalization('en-US', 'Deducts time from an officer\'s total shift duration.')
+        .addUserOption(option =>
           option.setName('kullanici')
+            .setNameLocalization('en-US', 'user')
             .setDescription('Süresi azaltılacak memur.')
+            .setDescriptionLocalization('en-US', 'Officer to deduct duration from.')
             .setRequired(true)
         )
     )
-    
+
     // 10. Siralama Subcommand
     .addSubcommand(subcommand =>
       subcommand
         .setName('siralama')
+        .setNameLocalization('en-US', 'leaderboard')
         .setDescription('Tüm memurların mesai sıralamasını (leaderboard) gösterir.')
+        .setDescriptionLocalization('en-US', 'Shows the shift hours leaderboard for all officers.')
     ),
 
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
     const guild = interaction.guild;
     const config = await GuildConfig.findOne({ guildId: guild.id });
-    
+
     if (!config) {
-      return interaction.reply({ content: '❌ Sunucu kurulumu yapılmamış! Lütfen önce `/kurulum-yap` komutunu çalıştırın.', ephemeral: true });
+      return interaction.reply({ content: t(config, 'common.notConfigured'), ephemeral: true });
     }
 
     // Yetki Kontrol Yardımcısı (Staff)
@@ -159,20 +198,20 @@ module.exports = {
     // --- MODAL AÇAN KOMUTLAR (Defer edilmemeli!) ---
     if (subcommand === 'ekle' || subcommand === 'azalt') {
       if (!isAuthorized()) {
-        return interaction.reply({ content: '❌ Bu komutu kullanmak için gerekli yetkiye sahip değilsiniz.', ephemeral: true });
+        return interaction.reply({ content: t(config, 'common.notAuthorized'), ephemeral: true });
       }
-      
+
       const targetUser = interaction.options.getUser('kullanici');
-      
+
       const modal = new ModalBuilder()
         .setCustomId(`modal_mesai_${subcommand}_${targetUser.id}`)
-        .setTitle(subcommand === 'ekle' ? 'Mesai Süresi Ekle' : 'Mesai Süresi Azalt');
+        .setTitle(subcommand === 'ekle' ? t(config, 'mesai.modalEkleTitle') : t(config, 'mesai.modalAzaltTitle'));
 
       const timeInput = new TextInputBuilder()
         .setCustomId('sure_input')
-        .setLabel(subcommand === 'ekle' ? 'Eklenecek Süre (Dakika)' : 'Azaltılacak Süre (Dakika)')
+        .setLabel(subcommand === 'ekle' ? t(config, 'mesai.modalEkleLabel') : t(config, 'mesai.modalAzaltLabel'))
         .setStyle(TextInputStyle.Short)
-        .setPlaceholder('Örn: 60')
+        .setPlaceholder('60')
         .setRequired(true);
 
       const firstRow = new ActionRowBuilder().addComponents(timeInput);
@@ -186,13 +225,13 @@ module.exports = {
 
     // Erişim Engeli Kontrolü (Sorgula ve Aktifler için en az Memur veya Yetkili olmalıdır)
     if (!hasAccess()) {
-      return interaction.editReply({ content: `❌ Mesai sistemini kullanabilmek için <@&${config.roles.officer}> rolüne sahip olmalısınız.` });
+      return interaction.editReply({ content: t(config, 'common.noOfficerRole', config.roles.officer) });
     }
 
     // A. SORGULA
     if (subcommand === 'sorgula') {
       const targetUser = interaction.options.getUser('kullanici') || interaction.user;
-      
+
       // Kendisi dışında birini sorgulamak yetkili iznine tabidir
       if (targetUser.id !== interaction.user.id && !isAuthorized()) {
         return interaction.editReply({ content: '❌ Başka bir memurun mesai bilgilerini sorgulamak için yetkiniz bulunmuyor.' });
@@ -201,9 +240,9 @@ module.exports = {
       const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
       const userTotal = await UserTotal.findOne({ userId: targetUser.id, guildId: guild.id });
       const totalTime = userTotal ? userTotal.totalTime : 0;
-      
+
       const activeShift = await Shift.findOne({ userId: targetUser.id, guildId: guild.id, status: 'active' });
-      
+
       const embed = new EmbedBuilder()
         .setTitle(`📊 GÖREV RAPORU - ${targetUser.username}`)
         .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
@@ -234,7 +273,7 @@ module.exports = {
     // B. AKTIF MEMURLAR
     else if (subcommand === 'aktif-memurlar') {
       const activeShifts = await Shift.find({ guildId: guild.id, status: 'active' });
-      
+
       if (activeShifts.length === 0) {
         return interaction.editReply({ content: 'ℹ️ Şu anda aktif görevde olan memur bulunmamaktadır.' });
       }
@@ -276,24 +315,23 @@ module.exports = {
       userTotal.totalTime = msValue;
       await userTotal.save();
 
-      await interaction.editReply({ content: `✅ <@${targetUser.id}> memurunun toplam mesaisi **${hours} saat** (${formatTime(msValue)}) olarak ayarlandı.` });
+      const formattedMs = formatTime(msValue, config.language);
+      await interaction.editReply({ content: t(config, 'mesai.ayarlaSuccess', targetUser.id, hours, formattedMs) });
 
       // Premium Yetkili Log
       if (config.channels.mesaiYetkiliLog) {
         const logChan = guild.channels.cache.get(config.channels.mesaiYetkiliLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('⚙️ MESAI SÜRESİ AYARLANDI')
+            .setTitle(t(config, 'mesai.logAyarlaTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👮 **İşlemi Yapan Yetkili:** <@${interaction.user.id}>\n` +
-              `👤 **Memur:** <@${targetUser.id}>\n` +
-              `📝 **Yeni Ayarlanan Süre:** **${hours} saat** (\`${formatTime(msValue)}\`)\n\n` +
+              t(config, 'mesai.logAyarlaDesc', interaction.user.id, targetUser.id, hours, formattedMs) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0xF39C12)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Yetkili İşlem Log', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'mesai.logFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }
@@ -306,24 +344,22 @@ module.exports = {
       await UserTotal.deleteOne({ userId: targetUser.id, guildId: guild.id });
       await Shift.updateMany({ userId: targetUser.id, guildId: guild.id, status: 'active' }, { status: 'cancelled', clockOut: new Date() });
 
-      await interaction.editReply({ content: `✅ <@${targetUser.id}> memurunun tüm mesai geçmişi ve toplam saati sıfırlandı.` });
+      await interaction.editReply({ content: t(config, 'mesai.sifirlaSuccess', targetUser.id) });
 
       // Premium Yetkili Log
       if (config.channels.mesaiYetkiliLog) {
         const logChan = guild.channels.cache.get(config.channels.mesaiYetkiliLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('💥 MESAİ SIFIRLANDI')
+            .setTitle(t(config, 'mesai.logSifirlaTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👮 **Sıfırlayan Yetkili:** <@${interaction.user.id}>\n` +
-              `👤 **Sıfırlanan Memur:** <@${targetUser.id}>\n\n` +
-              '**⚠️ BİLGİ:** Bu memurun tüm aktif görevleri sonlandırıldı ve biriken mesai süresi 0 yapıldı.\n\n' +
+              t(config, 'mesai.logSifirlaDesc', interaction.user.id, targetUser.id) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0xC0392B)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Yetkili İşlem Log', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'mesai.logFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }
@@ -335,12 +371,12 @@ module.exports = {
       const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
 
       if (!targetMember) {
-        return interaction.editReply({ content: '❌ Kullanıcı bu sunucuda bulunamadı.' });
+        return interaction.editReply({ content: t(config, 'common.userNotFound') });
       }
 
       const activeShift = await Shift.findOne({ userId: targetUser.id, guildId: guild.id, status: 'active' });
       if (activeShift) {
-        return interaction.editReply({ content: `❌ <@${targetUser.id}> memurunun zaten aktif bir mesaisi bulunuyor.` });
+        return interaction.editReply({ content: t(config, 'mesai.baslatAlreadyActive', targetUser.id) });
       }
 
       const shift = new Shift({
@@ -352,7 +388,7 @@ module.exports = {
       });
       await shift.save();
 
-      await interaction.editReply({ content: `✅ <@${targetUser.id}> memuru için mesai manuel olarak **başlatıldı**.` });
+      await interaction.editReply({ content: t(config, 'mesai.baslatSuccess', targetUser.id) });
 
       // Premium Giriş Log
       if (config.channels.mesaiGirisLog) {
@@ -360,21 +396,18 @@ module.exports = {
         if (logChan) {
           const userTotal = await UserTotal.findOne({ userId: targetUser.id, guildId: guild.id });
           const totalTime = userTotal ? userTotal.totalTime : 0;
-          
+          const formattedTotal = formatTime(totalTime, config.language);
+
           const logEmbed = new EmbedBuilder()
-            .setTitle('🟢 MANUEL MESAI BAŞLATILDI')
+            .setTitle(t(config, 'mesai.logBaslatTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👮 **Başlatan Yetkili:** <@${interaction.user.id}>\n` +
-              `👤 **Giriş Yapan Memur:** <@${targetUser.id}>\n` +
-              `🎖️ **En Yüksek Rütbe:** <@&${targetMember.roles.highest.id}>\n` +
-              `⏰ **Giriş Zamanı:** <t:${Math.floor(shift.clockIn.getTime() / 1000)}:F> (<t:${Math.floor(shift.clockIn.getTime() / 1000)}:R>)\n\n` +
-              `📊 **Birikmiş Toplam Süre:** \`${formatTime(totalTime)}\`\n\n` +
+              t(config, 'mesai.logBaslatDesc', interaction.user.id, targetUser.id, targetMember.roles.highest.id, Math.floor(shift.clockIn.getTime() / 1000), formattedTotal) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0x27AE60)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Görev Log Sistemi', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'mesai.logGirisFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }
@@ -412,27 +445,22 @@ module.exports = {
         await targetUser.send({
           content: `🚨 Aktif mesainiz bir yetkili tarafından sonlandırılmıştır. Oturum süresi (**${formatTime(duration)}**) toplam mesainize eklenmiştir. Toplam süreniz: **${formatTime(userTotal.totalTime)}**`
         });
-      } catch (err) {}
+      } catch (err) { }
 
       // Premium Çıkış Log
       if (config.channels.mesaiCikisLog) {
         const logChan = guild.channels.cache.get(config.channels.mesaiCikisLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('🔴 MANUEL MESAI SONLANDIRILDI (SÜRE EKLENDİ)')
+            .setTitle(t(config, 'mesai.logBitirEkleTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👮 **Sonlandıran Yetkili:** <@${interaction.user.id}>\n` +
-              `👤 **Memur:** <@${targetUser.id}>\n\n` +
-              `⏰ **Mesai Başlangıcı:** <t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:F>\n` +
-              `⏰ **Çıkış Zamanı:** <t:${Math.floor(clockOut.getTime() / 1000)}:F>\n` +
-              `⏱️ **Görev Süresi:** \`${formatTime(duration)}\`\n\n` +
-              `📊 **Güncel Toplam Süre:** \`${formatTime(userTotal.totalTime)}\`\n\n` +
+              t(config, 'mesai.logBitirEkleDesc', interaction.user.id, targetUser.id, Math.floor(activeShift.clockIn.getTime() / 1000), Math.floor(clockOut.getTime() / 1000), formatTime(duration, config.language), formatTime(userTotal.totalTime, config.language)) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
-            .setColor(0xE74C3C)
+            .setColor(0xC0392B)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Görev Log Sistemi', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'mesai.logFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }
@@ -444,7 +472,7 @@ module.exports = {
 
       const activeShift = await Shift.findOne({ userId: targetUser.id, guildId: guild.id, status: 'active' });
       if (!activeShift) {
-        return interaction.editReply({ content: `❌ <@${targetUser.id}> memurunun aktif bir mesaisi bulunmuyor.` });
+        return interaction.editReply({ content: t(config, 'mesai.bitirEkleNoShift', targetUser.id) });
       }
 
       const clockOut = new Date();
@@ -452,62 +480,59 @@ module.exports = {
       activeShift.status = 'cancelled';
       await activeShift.save();
 
-      await interaction.editReply({ content: `✅ <@${targetUser.id}> memurunun aktif mesaisi **iptal edilerek** sonlandırıldı (geçen süre eklenmedi).` });
+      await interaction.editReply({ content: t(config, 'mesai.bitirEklemeSuccess', targetUser.id) });
 
       // DM
       try {
         await targetUser.send({
-          content: `🚨 Aktif mesainiz bir yetkili tarafından **iptal edilerek** sonlandırılmıştır. Bu mesai süresi toplam saatinize eklenmemiştir.`
+          content: t(config, 'mesai.bitirEklemeDM')
         });
-      } catch (err) {}
+      } catch (err) { }
 
       // Premium Yetkili Log (İptal)
       if (config.channels.mesaiYetkiliLog) {
         const logChan = guild.channels.cache.get(config.channels.mesaiYetkiliLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('🚨 MANUEL GÖREV İPTAL EDİLDİ')
+            .setTitle(t(config, 'mesai.logBitirEklemeTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👮 **İptal Eden Yetkili:** <@${interaction.user.id}>\n` +
-              `👤 **Memur:** <@${targetUser.id}>\n\n` +
-              `⏰ **Mesai Başlangıcı:** <t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:F>\n` +
-              `⚠️ **BİLGİ:** Bu mesai kaydı iptal edildiğinden geçen çalışma süresi memurun toplam saatinize eklenmemiştir.\n\n` +
+              t(config, 'mesai.logBitirEklemeDesc', interaction.user.id, targetUser.id, Math.floor(activeShift.clockIn.getTime() / 1000)) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0x95A5A6)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Yetkili İşlem Log', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'mesai.logFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }
     }
-    
+
     // H. SIRALAMA (LEADERBOARD)
     else if (subcommand === 'siralama') {
       const topUsers = await UserTotal.find({ guildId: guild.id }).sort({ totalTime: -1 }).limit(10);
-      
+
       if (topUsers.length === 0) {
-        return interaction.editReply({ content: 'ℹ️ Sunucuda henüz kayıtlı mesai verisi bulunmamaktadır.' });
+        return interaction.editReply({ content: t(config, 'mesai.siralamaEmpty') });
       }
 
       const embed = new EmbedBuilder()
-        .setTitle('🏆 LSPD GÖREV SÜRESİ SIRALAMASI')
-        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\nEn çok mesai yapan ilk 10 memur aşağıda listelenmiştir:\n')
+        .setTitle(t(config, 'mesai.siralamaTitle'))
+        .setDescription(t(config, 'mesai.siralamaDesc'))
         .setColor(0xF1C40F)
         .setTimestamp()
         .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'LSPD Mesai Sıralama Sistemi', iconURL: guild.iconURL() });
+        .setFooter({ text: t(config, 'mesai.siralamaFooter'), iconURL: guild.iconURL() });
 
       let desc = embed.data.description;
       const medals = ['🥇', '🥈', '🥉'];
-      
+
       for (let i = 0; i < topUsers.length; i++) {
         const userTotal = topUsers[i];
         const rankEmoji = medals[i] || `🔹 **${i + 1}.**`;
-        desc += `${rankEmoji} <@${userTotal.userId}> — Toplam Süre: **${formatTime(userTotal.totalTime)}**\n`;
+        desc += `${rankEmoji} <@${userTotal.userId}> — Toplam Süre: **${formatTime(userTotal.totalTime, config.language)}**\n`;
       }
-      
+
       desc += '\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
       embed.setDescription(desc);
 

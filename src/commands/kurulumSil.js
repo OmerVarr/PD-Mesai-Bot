@@ -3,11 +3,14 @@ const {
   PermissionFlagsBits 
 } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
+const { t } = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('kurulum-sil')
+    .setNameLocalization('en-US', 'setup-delete')
     .setDescription('Botun sunucuda oluşturduğu tüm kanalları/kategorileri siler ve ayarları sıfırlar.')
+    .setDescriptionLocalization('en-US', 'Deletes all channels/categories created by the bot and resets settings.')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
@@ -17,7 +20,7 @@ module.exports = {
     const config = await GuildConfig.findOne({ guildId: guild.id });
     
     if (!config) {
-      return interaction.editReply({ content: '❌ Sunucuda aktif bir kurulum kaydı bulunamadı.' });
+      return interaction.editReply({ content: t(config, 'kurulumSil.noRecord') });
     }
 
     // Silinecek kanalları topla
@@ -39,6 +42,7 @@ module.exports = {
     ];
 
     let deletedCount = 0;
+    const deletionReason = t(config, 'kurulumSil.reason');
 
     // 1. Önce Kanalları Sil
     for (const channelId of channelsToDelete) {
@@ -46,7 +50,7 @@ module.exports = {
       try {
         const channel = await guild.channels.fetch(channelId).catch(() => null);
         if (channel) {
-          await channel.delete('Sistem kurulumu kaldırıldı.');
+          await channel.delete(deletionReason);
           deletedCount++;
         }
       } catch (err) {
@@ -60,7 +64,7 @@ module.exports = {
       try {
         const category = await guild.channels.fetch(categoryId).catch(() => null);
         if (category) {
-          await category.delete('Sistem kurulumu kaldırıldı.');
+          await category.delete(deletionReason);
           deletedCount++;
         }
       } catch (err) {
@@ -72,7 +76,7 @@ module.exports = {
     await GuildConfig.deleteOne({ guildId: guild.id });
 
     await interaction.editReply({
-      content: `✅ **Sistem Başarıyla Kaldırıldı!**\n\n• Toplam **${deletedCount}** kanal ve kategori silindi.\n• Veritabanındaki sunucu yapılandırma ayarları temizlendi.`
+      content: t(config, 'kurulumSil.success', deletedCount)
     });
   }
 };

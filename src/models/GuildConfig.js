@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const GuildConfigSchema = new mongoose.Schema({
   guildId: { type: String, required: true, unique: true },
+  language: { type: String, default: 'tr' },
   roles: {
     officer: { type: String, default: null },
     manager: { type: String, default: null },

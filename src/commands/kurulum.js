@@ -8,31 +8,42 @@ const {
   ButtonStyle 
 } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
+const { t } = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('kurulum-yap')
+    .setNameLocalization('en-US', 'setup')
     .setDescription('Bot kanallarını ve rollerini otomatik olarak kurar.')
+    .setDescriptionLocalization('en-US', 'Automatically sets up bot channels and roles.')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addRoleOption(option => 
       option.setName('memur-rol')
+        .setNameLocalization('en-US', 'officer-role')
         .setDescription('Mesai sistemini kullanabilecek Memur/Polis rolünü seçiniz.')
+        .setDescriptionLocalization('en-US', 'Select the Officer/Police role that can use the shift system.')
         .setRequired(true))
     .addRoleOption(option => 
       option.setName('mesai-manager')
+        .setNameLocalization('en-US', 'shift-manager')
         .setDescription('Mesai Manager rolünü seçiniz.')
+        .setDescriptionLocalization('en-US', 'Select the Shift Manager role.')
         .setRequired(true))
     .addRoleOption(option => 
       option.setName('supervisor')
         .setDescription('Supervisor rolünü seçiniz.')
+        .setDescriptionLocalization('en-US', 'Select the Supervisor role.')
         .setRequired(true))
     .addRoleOption(option => 
       option.setName('highcommand')
         .setDescription('Highcommand rolünü seçiniz.')
+        .setDescriptionLocalization('en-US', 'Select the Highcommand role.')
         .setRequired(true))
     .addChannelOption(option => 
       option.setName('bot-ses-kanali')
+        .setNameLocalization('en-US', 'bot-voice-channel')
         .setDescription('Botun duracağı ses kanalını seçiniz.')
+        .setDescriptionLocalization('en-US', 'Select the voice channel for the bot.')
         .addChannelTypes(ChannelType.GuildVoice)
         .setRequired(true)),
 
@@ -46,11 +57,16 @@ module.exports = {
     const highcommandRole = interaction.options.getRole('highcommand');
     const voiceChannel = interaction.options.getChannel('bot-ses-kanali');
 
+    let config = await GuildConfig.findOne({ guildId: guild.id });
+    if (!config) {
+      config = new GuildConfig({ guildId: guild.id });
+    }
+
     try {
       // 1. Kategorileri Oluştur
       // Bot Log Kategorisi (Gizli)
       const logCategory = await guild.channels.create({
-        name: 'Bot log - Mesai',
+        name: t(config, 'kurulum.logCategory'),
         type: ChannelType.GuildCategory,
         permissionOverwrites: [
           {
@@ -82,7 +98,7 @@ module.exports = {
 
       // Mesai Panel Kategorisi (Herkese Açık ama Mesaj Gönderimi Kapalı)
       const panelCategory = await guild.channels.create({
-        name: 'Mesai panel',
+        name: t(config, 'kurulum.panelCategory'),
         type: ChannelType.GuildCategory,
         permissionOverwrites: [
           {
@@ -99,7 +115,7 @@ module.exports = {
 
       // Ticket Kategorisi (Sadece yetkililer ve açan kişi görebilecek - varsayılan olarak gizli)
       const ticketCategory = await guild.channels.create({
-        name: 'Destek Kanalları',
+        name: t(config, 'kurulum.ticketCategory'),
         type: ChannelType.GuildCategory,
         permissionOverwrites: [
           {
@@ -128,54 +144,49 @@ module.exports = {
       // 2. Kanalları Oluştur
       // Log Kanalları
       const mesaiGirisLog = await guild.channels.create({
-        name: 'mesai-giris-log',
+        name: t(config, 'kurulum.shiftGirisLog'),
         type: ChannelType.GuildText,
         parent: logCategory.id
       });
 
       const mesaiCikisLog = await guild.channels.create({
-        name: 'mesai-cikis-log',
+        name: t(config, 'kurulum.shiftCikisLog'),
         type: ChannelType.GuildText,
         parent: logCategory.id
       });
 
       const mesaiYetkiliLog = await guild.channels.create({
-        name: 'mesai-yetkili-log',
+        name: t(config, 'kurulum.shiftYetkiliLog'),
         type: ChannelType.GuildText,
         parent: logCategory.id
       });
 
       const ticketLog = await guild.channels.create({
-        name: 'ticket-log',
+        name: t(config, 'kurulum.ticketLog'),
         type: ChannelType.GuildText,
         parent: logCategory.id
       });
 
       // Panel Kanalları
       const mesaiGirisPanel = await guild.channels.create({
-        name: 'mesai-giris',
+        name: t(config, 'kurulum.shiftGirisPanel'),
         type: ChannelType.GuildText,
         parent: panelCategory.id
       });
 
       const gunlukVeri = await guild.channels.create({
-        name: 'gunluk-veri',
+        name: t(config, 'kurulum.gunlukVeri'),
         type: ChannelType.GuildText,
         parent: panelCategory.id
       });
 
       const ticketPanelChan = await guild.channels.create({
-        name: 'ticket-destek',
+        name: t(config, 'kurulum.ticketSupport'),
         type: ChannelType.GuildText,
         parent: panelCategory.id
       });
 
       // 3. Veritabanına kaydet
-      let config = await GuildConfig.findOne({ guildId: guild.id });
-      if (!config) {
-        config = new GuildConfig({ guildId: guild.id });
-      }
-
       config.roles = {
         officer: officerRole.id,
         manager: managerRole.id,
@@ -204,40 +215,28 @@ module.exports = {
 
       // 4. Premium Mesai Panel Mesajını Gönder
       const mesaiEmbed = new EmbedBuilder()
-        .setTitle('👮 LSPD DEPARTMANI GÖREV TAKİP PANELİ')
-        .setDescription(
-          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-          'LSPD personelinin mesai saatlerini kayıt altında tutmak amacıyla hazırlanan sisteme hoş geldiniz.\n\n' +
-          '**📌 BİLGİLENDİRME & KURALLAR:**\n' +
-          '• Göreve başlamadan önce **Mesai Gir** butonuna basarak sürenizi aktif edin.\n' +
-          '• Göreviniz bittiğinde **Mesai Çık** butonuyla mesai kaydınızı sonlandırın.\n' +
-          '• Mesai çıkışınızda toplam çalışma süreniz tarafınıza **DM** yoluyla bildirilecektir.\n\n' +
-          '**⚙️ KULLANICI İŞLEMLERİ:**\n' +
-          '🟢 **Mesai Gir:** Görevi aktif eder ve kaydı başlatır.\n' +
-          '🔴 **Mesai Çık:** Görevi sonlandırır, süreyi kaydeder.\n' +
-          'ℹ️ **Mesai Bilgi:** Toplam sürenizi ve anlık mesai durumunuzu gösterir.\n\n' +
-          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
-        )
+        .setTitle(t(config, 'mesaiPanel.title'))
+        .setDescription(t(config, 'mesaiPanel.desc'))
         .setColor(0x1F8B4C)
         .setTimestamp()
         .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'Los Santos Police Department', iconURL: guild.iconURL() });
+        .setFooter({ text: t(config, 'mesaiPanel.footer'), iconURL: guild.iconURL() });
 
       const mesaiRow = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
             .setCustomId('mesai_giris')
-            .setLabel('Mesai Gir')
+            .setLabel(t(config, 'mesaiPanel.btnGiris'))
             .setStyle(ButtonStyle.Success)
             .setEmoji('🟢'),
           new ButtonBuilder()
             .setCustomId('mesai_cikis')
-            .setLabel('Mesai Çık')
+            .setLabel(t(config, 'mesaiPanel.btnCikis'))
             .setStyle(ButtonStyle.Danger)
             .setEmoji('🔴'),
           new ButtonBuilder()
             .setCustomId('mesai_bilgi')
-            .setLabel('Mesai Bilgi')
+            .setLabel(t(config, 'mesaiPanel.btnBilgi'))
             .setStyle(ButtonStyle.Primary)
             .setEmoji('ℹ️')
         );
@@ -246,51 +245,53 @@ module.exports = {
 
       // 5. Premium Ticket Panel Mesajını Gönder
       const ticketEmbed = new EmbedBuilder()
-        .setTitle('💼 LSPD DEPARTMAN DESTEK PANELİ')
-        .setDescription(
-          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-          'Departman yetkilileri ile görüşmek, şikayet bildirmek veya komuta kademesi ile iletişime geçmek için ilgili departman butonunu kullanabilirsiniz.\n\n' +
-          '**📌 DESTEK BİRİMLERİ:**\n' +
-          '🛡️ **Supervisor Destek:** Bölge amirlerine iletilecek talepler.\n' +
-          '👑 **Highcommand Destek:** Yüksek komuta kademesine (Şef/Şef Yrd.) iletilecek konular.\n' +
-          '💬 **Genel Destek:** Genel sorular ve birim dışı talepler.\n\n' +
-          '**⚠️ BİLGİLENDİRME:**\n' +
-          'Gereksiz ticket açılması disiplin cezalarına yol açabilir. Lütfen konunuza uygun doğru birimi seçiniz.\n\n' +
-          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
-        )
+        .setTitle(t(config, 'ticket.title'))
+        .setDescription(t(config, 'ticket.desc'))
         .setColor(0xE67E22)
         .setTimestamp()
         .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'Los Santos Police Department', iconURL: guild.iconURL() });
+        .setFooter({ text: t(config, 'ticket.footer'), iconURL: guild.iconURL() });
 
       const ticketRow = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
             .setCustomId('ticket_supervisor')
-            .setLabel('Supervisor Destek')
+            .setLabel(t(config, 'ticket.btnSupervisor'))
             .setStyle(ButtonStyle.Primary)
             .setEmoji('🛡️'),
           new ButtonBuilder()
             .setCustomId('ticket_highcommand')
-            .setLabel('Highcommand Destek')
+            .setLabel(t(config, 'ticket.btnHighcommand'))
             .setStyle(ButtonStyle.Danger)
             .setEmoji('👑'),
           new ButtonBuilder()
             .setCustomId('ticket_genel')
-            .setLabel('Genel Destek')
+            .setLabel(t(config, 'ticket.btnGenel'))
             .setStyle(ButtonStyle.Secondary)
             .setEmoji('💬')
         );
 
       await ticketPanelChan.send({ embeds: [ticketEmbed], components: [ticketRow] });
 
+      const successStr = t(config, 'kurulum.success')
+        .replace('{panelChannel}', mesaiGirisPanel.id)
+        .replace('{ticketChannel}', ticketPanelChan.id)
+        .replace('{girisLog}', mesaiGirisLog.id)
+        .replace('{cikisLog}', mesaiCikisLog.id)
+        .replace('{yetkiliLog}', mesaiYetkiliLog.id)
+        .replace('{ticketLog}', ticketLog.id)
+        .replace('{officer}', officerRole.id)
+        .replace('{manager}', managerRole.id)
+        .replace('{supervisor}', supervisorRole.id)
+        .replace('{highcommand}', highcommandRole.id);
+
       await interaction.editReply({
-        content: `✅ **LSPD Bot Kurulumu Başarıyla Tamamlandı!**\n\n📌 **Oluşturulan Kanallar:**\n• <#${mesaiGirisPanel.id}> (Mesai Giriş Paneli)\n• <#${ticketPanelChan.id}> (Ticket Destek Paneli)\n• <#${mesaiGirisLog.id}> (Giriş Logları)\n• <#${mesaiCikisLog.id}> (Çıkış Logları)\n• <#${mesaiYetkiliLog.id}> (Yetkili İşlem Logları)\n• <#${ticketLog.id}> (Ticket Logları)\n\n📌 **Tanımlanan İzin Rolleri:**\n• Memur Rolü: <@&${officerRole.id}>\n• Mesai Manager: <@&${managerRole.id}>\n• Supervisor: <@&${supervisorRole.id}>\n• Highcommand: <@&${highcommandRole.id}>`
+        content: successStr
       });
 
     } catch (error) {
       console.error('Setup Error:', error);
-      await interaction.editReply({ content: 'Kurulum sırasında bir hata oluştu! Botun "Kanalları Yönet" iznine sahip olduğundan emin olun.' });
+      await interaction.editReply({ content: t(config, 'common.setupError') });
     }
   }
 };

@@ -3,6 +3,7 @@ const Shift = require('../models/Shift');
 const UserTotal = require('../models/UserTotal');
 const GuildConfig = require('../models/GuildConfig');
 const { formatTime } = require('../utils/formatTime');
+const { t } = require('../utils/i18n');
 
 module.exports = {
   async handle(interaction, client) {
@@ -25,18 +26,18 @@ module.exports = {
 
     if (!isOfficer && !isStaff) {
       return interaction.reply({
-        content: `❌ Bu sistemi kullanabilmek için <@&${config.roles.officer}> (Memur) rolüne sahip olmalısınız!`,
+        content: t(config, 'buttons.noOfficerRoleMsg', config.roles.officer),
         ephemeral: true
       });
     }
 
-    // 1. MESAI GIRIŞ
+    // 1. MESAI GİRİŞ
     if (customId === 'mesai_giris') {
       const activeShift = await Shift.findOne({ userId: user.id, guildId: guild.id, status: 'active' });
       if (activeShift) {
         const timeStarted = Math.floor(activeShift.clockIn.getTime() / 1000);
         return interaction.reply({
-          content: `⚠️ Zaten aktif bir mesainiz bulunuyor! (<t:${timeStarted}:R> giriş yaptınız.)`,
+          content: t(config, 'buttons.alreadyActiveShift', timeStarted),
           ephemeral: true
         });
       }
@@ -56,9 +57,7 @@ module.exports = {
 
       // Premium Ephemeral Yanıt
       await interaction.reply({
-        content: `🟢 **Mesaiye başarıyla giriş yaptınız!**\n` +
-          `⏰ **Giriş Zamanı:** <t:${Math.floor(shift.clockIn.getTime() / 1000)}:T>\n` +
-          `👮 Görevinizde başarılar dileriz, kazasız nöbetler!`,
+        content: t(config, 'buttons.clockInSuccess', Math.floor(shift.clockIn.getTime() / 1000)),
         ephemeral: true
       });
 
@@ -67,19 +66,16 @@ module.exports = {
         const logChannel = guild.channels.cache.get(config.channels.mesaiGirisLog);
         if (logChannel) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('🟢 PERSONEL GÖREVE BAŞLADI')
+            .setTitle(t(config, 'buttons.logClockInTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👤 **Memur:** <@${user.id}> \`(${user.tag})\`\n` +
-              `🎖️ **En Yüksek Rütbe:** <@&${highestRole.id}>\n` +
-              `⏰ **Giriş Zamanı:** <t:${Math.floor(shift.clockIn.getTime() / 1000)}:F> (<t:${Math.floor(shift.clockIn.getTime() / 1000)}:R>)\n\n` +
-              `📊 **Birikmiş Toplam Süre:** \`${formatTime(currentTotal)}\`\n\n` +
+              t(config, 'buttons.logClockInDesc', user.id, user.tag, highestRole.id, Math.floor(shift.clockIn.getTime() / 1000), formatTime(currentTotal, config.language)) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0x2ECC71)
             .setTimestamp()
             .setThumbnail(user.displayAvatarURL())
-            .setFooter({ text: 'LSPD Görev Log Sistemi', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'buttons.logShiftFooter'), iconURL: guild.iconURL() });
           
           await logChannel.send({ embeds: [logEmbed] });
         }
@@ -91,7 +87,7 @@ module.exports = {
       const activeShift = await Shift.findOne({ userId: user.id, guildId: guild.id, status: 'active' });
       if (!activeShift) {
         return interaction.reply({
-          content: '⚠️ Aktif bir mesainiz bulunmuyor! Mesaiyi bitirmek için önce mesaiye girmelisiniz.',
+          content: t(config, 'buttons.clockOutNoShift'),
           ephemeral: true
         });
       }
@@ -111,28 +107,27 @@ module.exports = {
       userTotal.totalTime += duration;
       await userTotal.save();
 
+      const formattedDuration = formatTime(duration, config.language);
+      const formattedTotal = formatTime(userTotal.totalTime, config.language);
+
       // Premium Ephemeral Yanıt
       await interaction.reply({
-        content: `🔴 **Mesainiz başarıyla sonlandırıldı!**\n⏱️ Bu mesaide geçen süre: **${formatTime(duration)}**\n📊 Toplam mesai süreniz: **${formatTime(userTotal.totalTime)}**`,
+        content: t(config, 'buttons.clockOutSuccess', formattedDuration, formattedTotal),
         ephemeral: true
       });
 
       // Premium DM Bildirimi gönder
       try {
         const dmEmbed = new EmbedBuilder()
-          .setTitle('🚓 LSPD MESAI RAPORU')
+          .setTitle(t(config, 'buttons.dmReportTitle'))
           .setDescription(
             '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-            'Mesai oturumunuz sonlandırılmış ve veritabanına işlenmiştir. Detaylar:\n\n' +
-            `⏱️ **Bu Oturum Süresi:** \`${formatTime(duration)}\`\n` +
-            `📊 **Güncel Toplam Süreniz:** \`${formatTime(userTotal.totalTime)}\`\n\n` +
-            `📅 **Giriş:** <t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:F>\n` +
-            `📅 **Çıkış:** <t:${Math.floor(clockOut.getTime() / 1000)}:F>\n\n` +
+            t(config, 'buttons.dmReportDesc', formattedDuration, formattedTotal, Math.floor(activeShift.clockIn.getTime() / 1000), Math.floor(clockOut.getTime() / 1000)) + '\n\n' +
             '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
           )
           .setColor(0xE74C3C)
           .setTimestamp()
-          .setFooter({ text: 'Los Santos Police Department', iconURL: guild.iconURL() });
+          .setFooter({ text: t(config, 'mesaiPanel.footer'), iconURL: guild.iconURL() });
         
         await user.send({ embeds: [dmEmbed] });
       } catch (err) {
@@ -144,21 +139,16 @@ module.exports = {
         const logChannel = guild.channels.cache.get(config.channels.mesaiCikisLog);
         if (logChannel) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('🔴 PERSONEL GÖREVDEN AYRILDI')
+            .setTitle(t(config, 'buttons.logClockOutTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👤 **Memur:** <@${user.id}> \`(${user.tag})\`\n` +
-              `🎖️ **En Yüksek Rütbe:** <@&${activeShift.badgeRole || member.roles.highest.id}>\n\n` +
-              `⏰ **Giriş Zamanı:** <t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:F>\n` +
-              `⏰ **Çıkış Zamanı:** <t:${Math.floor(clockOut.getTime() / 1000)}:F>\n` +
-              `⏱️ **Görev Süresi:** \`${formatTime(duration)}\`\n\n` +
-              `📊 **Güncel Toplam Süre:** \`${formatTime(userTotal.totalTime)}\`\n\n` +
+              t(config, 'buttons.logClockOutDesc', user.id, user.tag, activeShift.badgeRole || member.roles.highest.id, Math.floor(activeShift.clockIn.getTime() / 1000), Math.floor(clockOut.getTime() / 1000), formattedDuration, formattedTotal) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0xC0392B)
             .setTimestamp()
             .setThumbnail(user.displayAvatarURL())
-            .setFooter({ text: 'LSPD Görev Log Sistemi', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'buttons.logShiftFooter'), iconURL: guild.iconURL() });
           
           await logChannel.send({ embeds: [logEmbed] });
         }
@@ -172,27 +162,27 @@ module.exports = {
       const totalTime = userTotal ? userTotal.totalTime : 0;
 
       const infoEmbed = new EmbedBuilder()
-        .setTitle('📊 KİŞİSEL GÖREV BİLGİLERİ')
+        .setTitle(t(config, 'buttons.infoTitle'))
         .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
         .setColor(0x3498DB)
         .setThumbnail(user.displayAvatarURL())
         .addFields(
-          { name: '👤 Memur', value: `<@${user.id}>`, inline: true },
-          { name: '🎖️ Rütbe', value: `<@&${member.roles.highest.id}>`, inline: true },
-          { name: '⏱️ Toplam Birikmiş Mesai', value: `\`${formatTime(totalTime)}\`` }
+          { name: t(config, 'buttons.infoFieldMemur'), value: `<@${user.id}>`, inline: true },
+          { name: t(config, 'buttons.infoFieldRutbe'), value: `<@&${member.roles.highest.id}>`, inline: true },
+          { name: t(config, 'buttons.infoFieldTotal'), value: `\`${formatTime(totalTime, config.language)}\`` }
         )
         .setTimestamp()
-        .setFooter({ text: 'LSPD Personel Bilgi Sistemi', iconURL: guild.iconURL() });
+        .setFooter({ text: t(config, 'buttons.infoFooter'), iconURL: guild.iconURL() });
 
       if (activeShift) {
         const currentActiveDuration = Date.now() - activeShift.clockIn.getTime();
         infoEmbed.addFields(
-          { name: '🟢 Aktif Görev Durumu', value: `Şu anda **aktif** görevdesiniz.` },
-          { name: '⏰ Giriş Saati', value: `<t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:F> (<t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:R>)` },
-          { name: '⏳ Aktif Süre', value: `\`${formatTime(currentActiveDuration)}\`` }
+          { name: t(config, 'buttons.infoActiveStatus'), value: t(config, 'buttons.infoActiveVal') },
+          { name: t(config, 'buttons.infoFieldGiris'), value: `<t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:F> (<t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:R>)` },
+          { name: t(config, 'buttons.infoFieldDuration'), value: `\`${formatTime(currentActiveDuration, config.language)}\`` }
         );
       } else {
-        infoEmbed.addFields({ name: '🔴 Aktif Görev Durumu', value: 'Şu anda aktif görevde **değilsiniz**.' });
+        infoEmbed.addFields({ name: t(config, 'buttons.infoActiveStatus'), value: t(config, 'buttons.infoInactiveVal') });
       }
 
       await interaction.reply({ embeds: [infoEmbed], ephemeral: true });

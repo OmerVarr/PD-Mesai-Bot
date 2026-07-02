@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const UserTotal = require('../models/UserTotal');
 const GuildConfig = require('../models/GuildConfig');
 const { formatTime } = require('../utils/formatTime');
+const { t } = require('../utils/i18n');
 
 module.exports = {
   async handle(interaction, client) {
@@ -11,18 +12,19 @@ module.exports = {
     const action = parts[2]; // 'ekle' or 'azalt'
     const targetUserId = parts[3];
 
+    const config = await GuildConfig.findOne({ guildId: guild.id });
+
     const minutesInput = interaction.fields.getTextInputValue('sure_input');
     const minutes = parseInt(minutesInput, 10);
 
     if (isNaN(minutes) || minutes <= 0) {
       return interaction.reply({
-        content: '❌ Girdiğiniz değer geçerli pozitif bir sayı olmalıdır.',
+        content: t(config, 'common.invalidNumber'),
         ephemeral: true
       });
     }
 
     const msDiff = minutes * 60 * 1000;
-    const config = await GuildConfig.findOne({ guildId: guild.id });
     
     let userTotal = await UserTotal.findOne({ userId: targetUserId, guildId: guild.id });
     if (!userTotal) {
@@ -35,8 +37,12 @@ module.exports = {
       userTotal.totalTime += msDiff;
       await userTotal.save();
 
+      const formattedDiff = formatTime(msDiff, config ? config.language : 'tr');
+      const formattedNewTotal = formatTime(userTotal.totalTime, config ? config.language : 'tr');
+      const formattedOldTotal = formatTime(oldTotal, config ? config.language : 'tr');
+
       await interaction.reply({
-        content: `✅ <@${targetUserId}> memurunun toplam mesaisine **${minutes} dakika** (${formatTime(msDiff)}) eklendi.\n📊 Yeni Toplam: **${formatTime(userTotal.totalTime)}**`
+        content: t(config, 'modals.ekleSuccess', targetUserId, minutes, formattedDiff, userTotal.totalTime)
       });
 
       // Premium Yetkili Log (Ekleme)
@@ -44,19 +50,15 @@ module.exports = {
         const logChan = guild.channels.cache.get(config.channels.mesaiYetkiliLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('➕ MESAİ SÜRESİ EKLENDİ')
+            .setTitle(t(config, 'modals.logEkleTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👮 **İşlemi Yapan Yetkili:** <@${interaction.user.id}>\n` +
-              `👤 **Memur:** <@${targetUserId}>\n\n` +
-              `⏳ **Eklenecek Süre:** **${minutes} dakika** (\`${formatTime(msDiff)}\`)\n` +
-              `📊 **Eski Toplam:** \`${formatTime(oldTotal)}\`\n` +
-              `📊 **Yeni Toplam:** \`${formatTime(userTotal.totalTime)}\`\n\n` +
+              t(config, 'modals.logEkleDesc', interaction.user.id, targetUserId, minutes, formattedDiff, formattedOldTotal, formattedNewTotal) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0x27AE60)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Yetkili İşlem Log', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'mesai.logFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }
@@ -66,8 +68,12 @@ module.exports = {
       userTotal.totalTime = Math.max(0, userTotal.totalTime - msDiff);
       await userTotal.save();
 
+      const formattedDiff = formatTime(msDiff, config ? config.language : 'tr');
+      const formattedNewTotal = formatTime(userTotal.totalTime, config ? config.language : 'tr');
+      const formattedOldTotal = formatTime(oldTotal, config ? config.language : 'tr');
+
       await interaction.reply({
-        content: `✅ <@${targetUserId}> memurunun toplam mesaisinden **${minutes} dakika** (${formatTime(msDiff)}) düşüldü.\n📊 Yeni Toplam: **${formatTime(userTotal.totalTime)}**`
+        content: t(config, 'modals.azaltSuccess', targetUserId, minutes, formattedDiff, userTotal.totalTime)
       });
 
       // Premium Yetkili Log (Azaltma)
@@ -75,19 +81,15 @@ module.exports = {
         const logChan = guild.channels.cache.get(config.channels.mesaiYetkiliLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
-            .setTitle('➖ MESAİ SÜRESİ AZALTILDI')
+            .setTitle(t(config, 'modals.logAzaltTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👮 **İşlemi Yapan Yetkili:** <@${interaction.user.id}>\n` +
-              `👤 **Memur:** <@${targetUserId}>\n\n` +
-              `⏳ **Azaltılacak Süre:** **${minutes} dakika** (\`${formatTime(msDiff)}\`)\n` +
-              `📊 **Eski Toplam:** \`${formatTime(oldTotal)}\`\n` +
-              `📊 **Yeni Toplam:** \`${formatTime(userTotal.totalTime)}\`\n\n` +
+              t(config, 'modals.logAzaltDesc', interaction.user.id, targetUserId, minutes, formattedDiff, formattedOldTotal, formattedNewTotal) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0xD35400)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Yetkili İşlem Log', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'mesai.logFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }

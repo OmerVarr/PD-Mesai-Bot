@@ -1,6 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
 const Ticket = require('../models/Ticket');
+const { t } = require('../utils/i18n');
 
 module.exports = {
   async handle(interaction, client) {
@@ -22,7 +23,7 @@ module.exports = {
 
     if (!isOfficer && !isStaff) {
       return interaction.reply({
-        content: `❌ Destek sistemi sadece departman personellerine özeldir. <@&${config.roles.officer}> rolüne sahip olmalısınız!`,
+        content: t(config, 'buttons.ticketNoOfficerMsg', config.roles.officer),
         ephemeral: true
       });
     }
@@ -33,18 +34,18 @@ module.exports = {
 
       let type = 'genel';
       let targetRoleId = config.roles.manager; 
-      let typeLabel = '💬 Genel Destek';
+      let typeLabel = t(config, 'buttons.ticketLabelGenel');
       let embedColor = 0x3498DB;
 
       if (customId === 'ticket_supervisor') {
         type = 'supervisor';
         targetRoleId = config.roles.supervisor;
-        typeLabel = '🛡️ Supervisor Destek';
+        typeLabel = t(config, 'buttons.ticketLabelSupervisor');
         embedColor = 0xE67E22;
       } else if (customId === 'ticket_highcommand') {
         type = 'highcommand';
         targetRoleId = config.roles.highcommand;
-        typeLabel = '👑 Highcommand Destek';
+        typeLabel = t(config, 'buttons.ticketLabelHighcommand');
         embedColor = 0xE74C3C;
       }
 
@@ -53,7 +54,7 @@ module.exports = {
         const existingChan = guild.channels.cache.get(openTicket.channelId);
         if (existingChan) {
           return interaction.editReply({
-            content: `⚠️ Zaten açık bir destek talebiniz bulunuyor: <#${openTicket.channelId}>`
+            content: t(config, 'buttons.ticketAlreadyOpen', openTicket.channelId)
           });
         } else {
           openTicket.status = 'closed';
@@ -121,29 +122,25 @@ module.exports = {
 
         // Premium Karşılama Mesajı
         const welcomeEmbed = new EmbedBuilder()
-          .setTitle('🎫 LSPD DESTEK TALEBİ AÇILDI')
+          .setTitle(t(config, 'buttons.ticketWelcomeTitle'))
           .setDescription(
             '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-            `Merhaba <@${user.id}>, destek talebiniz başarıyla oluşturulmuştur.\n` +
-            'İlgili birim yetkilisi en kısa sürede sizinle iletişime geçecektir.\n\n' +
-            '**📌 YETKİLİYE YARDIMCI OLMAK İÇİN:**\n' +
-            '• Talebinizin konusunu net bir dille belirtin.\n' +
-            '• Varsa delil, SS veya video bağlantılarını buraya ekleyin.\n\n' +
+            t(config, 'buttons.ticketWelcomeDesc', user.id) + '\n\n' +
             '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
           )
           .setColor(embedColor)
           .addFields(
-            { name: '👤 Talep Sahibi', value: `<@${user.id}>`, inline: true },
-            { name: '🏷️ Destek Kategorisi', value: `\`${typeLabel}\``, inline: true }
+            { name: t(config, 'buttons.ticketWelcomeFieldOwner'), value: `<@${user.id}>`, inline: true },
+            { name: t(config, 'buttons.ticketWelcomeFieldCategory'), value: `\`${typeLabel}\``, inline: true }
           )
           .setTimestamp()
-          .setFooter({ text: 'Los Santos Police Department', iconURL: guild.iconURL() });
+          .setFooter({ text: t(config, 'ticket.footer'), iconURL: guild.iconURL() });
 
         const closeRow = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
               .setCustomId('ticket_close')
-              .setLabel('Talebi Kapat')
+              .setLabel(t(config, 'buttons.ticketWelcomeBtnClose'))
               .setStyle(ButtonStyle.Danger)
               .setEmoji('🔒')
           );
@@ -156,7 +153,7 @@ module.exports = {
         });
 
         await interaction.editReply({
-          content: `✅ Destek talebiniz oluşturuldu: <#${ticketChannel.id}>`
+          content: t(config, 'buttons.ticketOpenSuccess', ticketChannel.id)
         });
 
         // Premium Ticket Log
@@ -164,24 +161,22 @@ module.exports = {
           const logChan = guild.channels.cache.get(config.channels.ticketLog);
           if (logChan) {
             const logEmbed = new EmbedBuilder()
-              .setTitle('🔓 YENİ DESTEK TALEBİ AÇILDI')
+              .setTitle(t(config, 'buttons.ticketLogOpenTitle'))
               .setDescription(
                 '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-                `👤 **Kullanıcı:** <@${user.id}> \`(${user.tag})\`\n` +
-                `🏷️ **Destek Kategorisi:** \`${typeLabel}\`\n` +
-                `💬 **Kanal:** <#${ticketChannel.id}>\n\n' +
-                '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`
+                t(config, 'buttons.ticketLogOpenDesc', user.id, user.tag, typeLabel, ticketChannel.id) + '\n\n' +
+                '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
               )
               .setColor(0x2ECC71)
               .setTimestamp()
-              .setFooter({ text: 'LSPD Ticket Log', iconURL: guild.iconURL() });
+              .setFooter({ text: t(config, 'buttons.ticketLogFooter'), iconURL: guild.iconURL() });
             await logChan.send({ embeds: [logEmbed] });
           }
         }
 
       } catch (error) {
         console.error('Ticket Creation Error:', error);
-        await interaction.editReply({ content: 'Ticket kanalı oluşturulurken bir hata meydana geldi.' });
+        await interaction.editReply({ content: t(config, 'common.errorOccurred') });
       }
     }
 
@@ -190,13 +185,13 @@ module.exports = {
       const ticket = await Ticket.findOne({ channelId: channel.id, status: 'open' });
       if (!ticket) {
         return interaction.reply({
-          content: '❌ Bu kanal bir aktif destek talebi olarak kaydedilmemiş veya zaten kapatılmış.',
+          content: t(config, 'buttons.ticketCloseNotActive'),
           ephemeral: true
         });
       }
 
       await interaction.reply({
-        content: '🔒 **Destek talebi kapatılıyor...** Kanal 5 saniye içerisinde silinecektir.'
+        content: t(config, 'buttons.ticketClosingMsg')
       });
 
       ticket.status = 'closed';
@@ -206,23 +201,20 @@ module.exports = {
       if (config.channels.ticketLog) {
         const logChan = guild.channels.cache.get(config.channels.ticketLog);
         if (logChan) {
-          let typeLabel = '💬 Genel Destek';
-          if (ticket.type === 'supervisor') typeLabel = '🛡️ Supervisor Destek';
-          else if (ticket.type === 'highcommand') typeLabel = '👑 Highcommand Destek';
+          let typeLabel = t(config, 'buttons.ticketLabelGenel');
+          if (ticket.type === 'supervisor') typeLabel = t(config, 'buttons.ticketLabelSupervisor');
+          else if (ticket.type === 'highcommand') typeLabel = t(config, 'buttons.ticketLabelHighcommand');
 
           const logEmbed = new EmbedBuilder()
-            .setTitle('🔒 DESTEK TALEBİ KAPATILDI')
+            .setTitle(t(config, 'buttons.ticketLogCloseTitle'))
             .setDescription(
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-              `👤 **Talebi Açan:** <@${ticket.userId}>\n` +
-              `👮 **Kapatan Yetkili:** <@${user.id}> \`(${user.tag})\`\n` +
-              `🏷️ **Destek Kategorisi:** \`${typeLabel}\`\n` +
-              `⏳ **Açılış Zamanı:** <t:${Math.floor(ticket.createdAt.getTime() / 1000)}:F>\n\n` +
+              t(config, 'buttons.ticketLogCloseDesc', ticket.userId, user.id, user.tag, typeLabel, Math.floor(ticket.createdAt.getTime() / 1000)) + '\n\n' +
               '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             )
             .setColor(0xC0392B)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Ticket Log', iconURL: guild.iconURL() });
+            .setFooter({ text: t(config, 'buttons.ticketLogFooter'), iconURL: guild.iconURL() });
           await logChan.send({ embeds: [logEmbed] });
         }
       }
