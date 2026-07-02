@@ -1,10 +1,28 @@
 const mesaiButtons = require('../buttons/mesaiButtons');
 const ticketButtons = require('../buttons/ticketButtons');
 const mesaiModals = require('../modals/mesaiModals');
+const Whitelist = require('../models/Whitelist');
+const GuildConfig = require('../models/GuildConfig');
+const { t } = require('../utils/i18n');
 
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction, client) {
+    // Whitelist Kontrolü
+    if (interaction.guildId) {
+      const ownerId = process.env.OWNER_ID;
+      const isOwner = interaction.user.id === ownerId;
+
+      if (!isOwner) {
+        const isWhitelisted = await Whitelist.findOne({ guildId: interaction.guildId });
+        if (!isWhitelisted) {
+          const config = await GuildConfig.findOne({ guildId: interaction.guildId });
+          const warningMessage = t(config, 'common.notWhitelisted');
+          return interaction.reply({ content: warningMessage, ephemeral: true });
+        }
+      }
+    }
+
     // 1. Slash Komutları
     if (interaction.isChatInputCommand()) {
       const command = client.commands.get(interaction.commandName);

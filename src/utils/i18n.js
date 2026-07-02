@@ -9,6 +9,8 @@ const translations = {
       channelNotText: '❌ Lütfen yazı yazılabilen bir kanal seçiniz.',
       userNotFound: '❌ Kullanıcı bu sunucuda bulunamadı.',
       invalidNumber: '❌ Girdiğiniz değer geçerli pozitif bir sayı olmalıdır.',
+      notWhitelisted: '❌ Bu sunucu botun whitelist (izin verilenler) listesinde bulunmuyor. Lütfen bot yöneticisi ile iletişime geçin.',
+      ownerOnly: '❌ Bu komutu sadece bot sahibi kullanabilir.',
       timeFormat: {
         seconds: 'saniye',
         minutes: 'dakika',
@@ -202,6 +204,14 @@ const translations = {
       optionDesc: 'TR veya EN seçiniz.',
       choiceTr: 'Türkçe (TR)',
       choiceEn: 'English (EN)'
+    },
+    whitelist: {
+      addSuccess: (guildId) => `✅ \`${guildId}\` ID'li sunucu başarıyla whitelist listesine eklendi.`,
+      removeSuccess: (guildId) => `✅ \`${guildId}\` ID'li sunucu whitelist listesinden kaldırıldı.`,
+      alreadyExists: (guildId) => `❌ \`${guildId}\` ID'li sunucu zaten whitelist listesinde bulunuyor.`,
+      notFound: (guildId) => `❌ \`${guildId}\` ID'li sunucu whitelist listesinde bulunamadı.`,
+      listTitle: '📋 Whitelist Listesindeki Sunucular',
+      emptyList: 'Sunucu whitelist listesi şu anda boş.'
     }
   },
   en: {
@@ -214,6 +224,8 @@ const translations = {
       channelNotText: '❌ Please select a text-based channel.',
       userNotFound: '❌ User not found in this server.',
       invalidNumber: '❌ The input value must be a valid positive number.',
+      notWhitelisted: '❌ This server is not on the bot\'s whitelist. Please contact the bot administrator.',
+      ownerOnly: '❌ Only the bot owner can use this command.',
       timeFormat: {
         seconds: 'seconds',
         minutes: 'minutes',
@@ -407,6 +419,14 @@ const translations = {
       optionDesc: 'Select TR or EN.',
       choiceTr: 'Turkish (TR)',
       choiceEn: 'English (EN)'
+    },
+    whitelist: {
+      addSuccess: (guildId) => `✅ Server with ID \`${guildId}\` has been successfully whitelisted.`,
+      removeSuccess: (guildId) => `✅ Server with ID \`${guildId}\` has been removed from the whitelist.`,
+      alreadyExists: (guildId) => `❌ Server with ID \`${guildId}\` is already whitelisted.`,
+      notFound: (guildId) => `❌ Server with ID \`${guildId}\` was not found in the whitelist.`,
+      listTitle: '📋 Whitelisted Servers',
+      emptyList: 'Whitelisted servers list is currently empty.'
     }
   }
 };
