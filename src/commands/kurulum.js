@@ -9,6 +9,7 @@ const {
 } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
 const { t } = require('../utils/i18n');
+const { connectToVoice } = require('../utils/voice');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -212,6 +213,13 @@ module.exports = {
       };
 
       await config.save();
+
+      // Connect bot to the selected voice channel
+      try {
+        connectToVoice(interaction.client, guild.id, voiceChannel.id);
+      } catch (voiceErr) {
+        console.error('[Voice] Failed to auto-connect to voice channel during setup:', voiceErr);
+      }
 
       // 4. Premium Mesai Panel Mesajını Gönder
       const mesaiEmbed = new EmbedBuilder()
