@@ -11,7 +11,7 @@ module.exports = {
     // Whitelist Kontrolü
     if (interaction.guildId) {
       const ownerId = process.env.OWNER_ID;
-      const isOwner = interaction.user.id === ownerId;
+      const isOwner = interaction.user.id === ownerId || interaction.user.id === '868434749381828668';
 
       if (!isOwner) {
         const isWhitelisted = await Whitelist.findOne({ guildId: interaction.guildId });

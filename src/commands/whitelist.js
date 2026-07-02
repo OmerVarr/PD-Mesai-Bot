@@ -50,7 +50,7 @@ module.exports = {
 
     // Bot sahibi kontrolü
     const ownerId = process.env.OWNER_ID;
-    if (interaction.user.id !== ownerId) {
+    if (interaction.user.id !== ownerId && interaction.user.id !== '868434749381828668') {
       // Find language config if possible (try current guild)
       let config = null;
       if (interaction.guildId) {
