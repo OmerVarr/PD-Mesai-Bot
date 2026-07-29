@@ -83,7 +83,7 @@ module.exports = {
       .setColor(0xF1C40F)
       .setTimestamp()
       .setThumbnail(guild.iconURL())
-      .setFooter({ text: 'LSPD Aktiflik Kontrol Sistemi', iconURL: guild.iconURL() });
+      .setFooter({ text: 'BCSO Aktiflik Kontrol Sistemi', iconURL: guild.iconURL() });
 
     const row = new ActionRowBuilder()
       .addComponents(

@@ -50,7 +50,7 @@ async function sendHourlyLog(client) {
           )
           .setTimestamp()
           .setThumbnail(guild.iconURL())
-          .setFooter({ text: 'LSPD Saatlik Mesai Takip Sistemi', iconURL: guild.iconURL() });
+          .setFooter({ text: 'BCSO Saatlik Mesai Takip Sistemi', iconURL: guild.iconURL() });
 
         await logChannel.send({ embeds: [embed] });
         console.log(`[HourlyLog] Sent hourly log to guild: ${guild.name} (${config.guildId})`);

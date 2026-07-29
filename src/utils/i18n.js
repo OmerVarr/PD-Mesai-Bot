@@ -19,9 +19,9 @@ const translations = {
       }
     },
     yardim: {
-      title: '📚 LSPD BOT KOMUT REHBERİ',
+      title: '📚 BCSO BOT KOMUT REHBERİ',
       description: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-        'LSPD Mesai ve Destek Botu üzerindeki tüm aktif komutlar aşağıda listelenmiştir:\n\n' +
+        'BCSO Mesai ve Destek Botu üzerindeki tüm aktif komutlar aşağıda listelenmiştir:\n\n' +
         '👮 **PERSONEL KOMUTLARI:**\n' +
         '• `/mesai sorgula` — Kendi mesai saatinizi ve aktif durumunuzu gösterir.\n' +
         '• `/mesai aktif-memurlar` — O an aktif görevde olan memurların listesini gösterir.\n' +
@@ -42,7 +42,7 @@ const translations = {
         '• `/ticket-paneli-gonder [kanal]` — Ticket paneli mesajını belirtilen kanala gönderir.\n' +
         '• `/dil-ayarla [dil]` — Botun dil seçeneğini ayarlar (TR / EN).\n\n' +
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',
-      footer: 'LSPD Yardım Sistemi'
+      footer: 'BCSO Yardım Sistemi'
     },
     kurulum: {
       logCategory: 'Bot log - Mesai',
@@ -55,7 +55,7 @@ const translations = {
       shiftGirisPanel: 'mesai-giris',
       gunlukVeri: 'gunluk-veri',
       ticketSupport: 'ticket-destek',
-      success: '✅ **LSPD Bot Kurulumu Başarıyla Tamamlandı!**\n\n📌 **Oluşturulan Kanallar:**\n• <#{panelChannel}> (Mesai Giriş Paneli)\n• <#{ticketChannel}> (Ticket Destek Paneli)\n• <#{girisLog}> (Giriş Logları)\n• <#{cikisLog}> (Çıkış Logları)\n• <#{yetkiliLog}> (Yetkili İşlem Logları)\n• <#{ticketLog}> (Ticket Logları)\n\n📌 **Tanımlanan İzin Rolleri:**\n• Memur Rolü: <@&{officer}>\n• Mesai Manager: <@&{manager}>\n• Supervisor: <@&{supervisor}>\n• Highcommand: <@&{highcommand}>'
+      success: '✅ **BCSO Bot Kurulumu Başarıyla Tamamlandı!**\n\n📌 **Oluşturulan Kanallar:**\n• <#{panelChannel}> (Mesai Giriş Paneli)\n• <#{ticketChannel}> (Ticket Destek Paneli)\n• <#{girisLog}> (Giriş Logları)\n• <#{cikisLog}> (Çıkış Logları)\n• <#{yetkiliLog}> (Yetkili İşlem Logları)\n• <#{ticketLog}> (Ticket Logları)\n\n📌 **Tanımlanan İzin Rolleri:**\n• Memur Rolü: <@&{officer}>\n• Mesai Manager: <@&{manager}>\n• Supervisor: <@&{supervisor}>\n• Highcommand: <@&{highcommand}>'
     },
     kurulumSil: {
       noRecord: '❌ Sunucuda aktif bir kurulum kaydı bulunamadı.',
@@ -63,9 +63,9 @@ const translations = {
       success: (count) => `✅ **Sistem Başarıyla Kaldırıldı!**\n\n• Toplam **${count}** kanal ve kategori silindi.\n• Veritabanındaki sunucu yapılandırma ayarları temizlendi.`
     },
     mesaiPanel: {
-      title: '👮 LSPD DEPARTMANI GÖREV TAKİP PANELİ',
+      title: '👮 BCSO DEPARTMANI GÖREV TAKİP PANELİ',
       desc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-        'LSPD personelinin mesai saatlerini kayıt altında tutmak amacıyla hazırlanan sisteme hoş geldiniz.\n\n' +
+        'BCSO personelinin mesai saatlerini kayıt altında tutmak amacıyla hazırlanan sisteme hoş geldiniz.\n\n' +
         '**📌 BİLGİLENDİRME & KURALLAR:**\n' +
         '• Göreve başlamadan önce **Mesai Gir** butonuna basarak sürenizi aktif edin.\n' +
         '• Göreviniz bittiğinde **Mesai Çık** butonuyla mesai kaydınızı sonlandırın.\n' +
@@ -75,7 +75,7 @@ const translations = {
         '🔴 **Mesai Çık:** Görevi sonlandırır, süreyi kaydeder.\n' +
         'ℹ️ **Mesai Bilgi:** Toplam sürenizi ve anlık mesai durumunuzu gösterir.\n\n' +
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',
-      footer: 'Los Santos Police Department',
+      footer: 'Blaine County Sheriff\'s Office',
       btnGiris: 'Mesai Gir',
       btnCikis: 'Mesai Çık',
       btnBilgi: 'Mesai Bilgi',
@@ -83,7 +83,7 @@ const translations = {
       error: '❌ Panel gönderilirken bir hata oluştu. Botun kanalda mesaj yazma yetkisi olduğunu kontrol edin.'
     },
     ticket: {
-      title: '💼 LSPD DEPARTMAN DESTEK PANELİ',
+      title: '💼 BCSO DEPARTMAN DESTEK PANELİ',
       desc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
         'Departman yetkilileri ile görüşmek, şikayet bildirmek veya komuta kademesi ile iletişime geçmek için ilgili departman butonunu kullanabilirsiniz.\n\n' +
         '**📌 DESTEK BİRİMLERİ:**\n' +
@@ -93,7 +93,7 @@ const translations = {
         '**⚠️ BİLGİLENDİRME:**\n' +
         'Gereksiz ticket açılması disiplin cezalarına yol açabilir. Lütfen konunuza uygun doğru birimi seçiniz.\n\n' +
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',
-      footer: 'Los Santos Police Department',
+      footer: 'Blaine County Sheriff\'s Office',
       btnSupervisor: 'Supervisor Destek',
       btnHighcommand: 'Highcommand Destek',
       btnGenel: 'Genel Destek',
@@ -102,7 +102,7 @@ const translations = {
     },
     mesai: {
       sorgulaTitle: (username) => `📊 GÖREV RAPORU - ${username}`,
-      sorgulaFooter: 'LSPD Personel Bilgi Sistemi',
+      sorgulaFooter: 'BCSO Personel Bilgi Sistemi',
       fieldMemur: '👤 Memur',
       fieldRutbe: '🎖️ Rütbe',
       fieldRutbeUnknown: 'Bilinmiyor',
@@ -115,13 +115,13 @@ const translations = {
       noActiveDutyMsg: '❌ Başka bir memurun mesai bilgilerini sorgulamak için yetkiniz bulunmuyor.',
       aktifTitle: '🚓 DEPARTMAN AKTİF MEMUR LİSTESİ',
       aktifDesc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\nŞu an sunucuda aktif görev yapan personeller aşağıda listelenmiştir:\n',
-      aktifFooter: 'LSPD Aktif Personel Takibi',
+      aktifFooter: 'BCSO Aktif Personel Takibi',
       noActiveDutyOfficers: 'ℹ️ Şu anda aktif görevde olan memur bulunmamaktadır.',
       aktifLine: (userId, time, relativeTime, duration) => `• <@${userId}> — Başlangıç: <t:${time}:t> (<t:${relativeTime}:R>) — Görevde: **${duration}**\n`,
       ayarlaSuccess: (userId, hours, duration) => `✅ <@${userId}> memurunun toplam mesaisi **${hours} saat** (${duration}) olarak ayarlandı.`,
       logAyarlaTitle: '⚙️ MESAİ SÜRESİ AYARLANDI',
       logAyarlaDesc: (staffId, targetId, hours, duration) => `👮 **İşlemi Yapan Yetkili:** <@${staffId}>\n👤 **Memur:** <@${targetId}>\n📝 **Yeni Ayarlanan Süre:** **${hours} saat** (\`${duration}\`)`,
-      logFooter: 'LSPD Yetkili İşlem Log',
+      logFooter: 'BCSO Yetkili İşlem Log',
       sifirlaSuccess: (userId) => `✅ <@${userId}> memurunun tüm mesai geçmişi ve toplam saati sıfırlandı.`,
       logSifirlaTitle: '💥 MESAİ SIFIRLANDI',
       logSifirlaDesc: (staffId, targetId) => `👮 **Sıfırlayan Yetkili:** <@${staffId}>\n👤 **Sıfırlanan Memur:** <@${targetId}>\n\n**⚠️ BİLGİ:** Bu memurun tüm aktif görevleri sonlandırıldı ve biriken mesai süresi 0 yapıldı.`,
@@ -129,9 +129,9 @@ const translations = {
       baslatAlreadyActive: (userId) => `❌ <@${userId}> memurunun zaten aktif bir mesaisi bulunuyor.`,
       logBaslatTitle: '🟢 MANUEL MESAI BAŞLATILDI',
       logBaslatDesc: (staffId, targetId, highestRole, time, totalTime) => `👮 **Başlatan Yetkili:** <@${staffId}>\n👤 **Giriş Yapan Memur:** <@${targetId}>\n🎖️ **En Yüksek Rütbe:** <@&${highestRole}>\n⏰ **Giriş Zamanı:** <t:${time}:F> (<t:${time}:R>)\n\n📊 **Birikmiş Toplam Süre:** \`${totalTime}\``,
-      logGirisFooter: 'LSPD Görev Log Sistemi',
+      logGirisFooter: 'BCSO Görev Log Sistemi',
       bitirEkleSuccess: (userId, duration) => `✅ <@${userId}> memurunun aktif mesaisi bitirildi ve **${duration}** süresi toplam süresine **eklendi**.`,
-      bitirEkleNoShift: (userId) => `❌ <@${userId}> memurunun aktif bir mesaisi bulunmuyor.`,
+      bitirEkleNoShift: (userId) => `❌ <@${userId}> memurunun aktif bir mesaisi bulunmiyor.`,
       bitirEkleDM: (duration, totalTime) => `🚨 Aktif mesainiz bir yetkili tarafından sonlandırılmıştır. Oturum süresi (**${duration}**) toplam mesainize eklenmiştir. Toplam süreniz: **${totalTime}**`,
       logBitirEkleTitle: '🔴 MANUEL MESAI SONLANDIRILDI (SÜRE EKLENDİ)',
       logBitirEkleDesc: (staffId, targetId, clockIn, clockOut, duration, totalTime) => `👮 **Sonlandıran Yetkili:** <@${staffId}>\n👤 **Memur:** <@${targetId}>\n\n⏰ **Mesai Başlangıcı:** <t:${clockIn}:F>\n⏰ **Çıkış Zamanı:** <t:${clockOut}:F>\n⏱️ **Görev Süresi:** \`${duration}\`\n\n📊 **Güncel Toplam Süre:** \`${totalTime}\``,
@@ -143,10 +143,10 @@ const translations = {
       modalEkleLabel: 'Eklenecek Süre (Dakika)',
       modalAzaltTitle: 'Mesai Süresi Azalt',
       modalAzaltLabel: 'Azaltılacak Süre (Dakika)',
-      siralamaTitle: '🏆 LSPD GÖREV SÜRESİ SIRALAMASI',
+      siralamaTitle: '🏆 BCSO GÖREV SÜRESİ SIRALAMASI',
       siralamaDesc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\nEn çok mesai yapan ilk 10 memur aşağıda listelenmiştir:\n',
       siralamaEmpty: 'ℹ️ Sunucuda henüz kayıtlı mesai verisi bulunmamaktadır.',
-      siralamaFooter: 'LSPD Mesai Sıralama Sistemi'
+      siralamaFooter: 'BCSO Mesai Sıralama Sistemi'
     },
     buttons: {
       noOfficerRoleMsg: (officerRole) => `❌ Bu sistemi kullanabilmek için <@&${officerRole}> (Memur) rolüne sahip olmalısınız!`,
@@ -154,10 +154,10 @@ const translations = {
       clockInSuccess: (time) => `🟢 **Mesaiye başarıyla giriş yaptınız!**\n⏰ **Giriş Zamanı:** <t:${time}:T>\n👮 Görevinizde başarılar dileriz, kazasız nöbetler!`,
       logClockInTitle: '🟢 PERSONEL GÖREVE BAŞLADI',
       logClockInDesc: (userId, userTag, highestRole, time, totalTime) => `👤 **Memur:** <@${userId}> \`(${userTag})\`\n🎖️ **En Yüksek Rütbe:** <@&${highestRole}>\n⏰ **Giriş Zamanı:** <t:${time}:F> (<t:${time}:R>)\n\n📊 **Birikmiş Toplam Süre:** \`${totalTime}\``,
-      logShiftFooter: 'LSPD Görev Log Sistemi',
+      logShiftFooter: 'BCSO Görev Log Sistemi',
       clockOutNoShift: '⚠️ Aktif bir mesainiz bulunmuyor! Mesaiyi bitirmek için önce mesaiye girmelisiniz.',
       clockOutSuccess: (duration, totalTime) => `🔴 **Mesainiz başarıyla sonlandırıldı!**\n⏱️ Bu mesaide geçen süre: **${duration}**\n📊 Toplam mesai süreniz: **${totalTime}**`,
-      dmReportTitle: '🚓 LSPD MESAI RAPORU',
+      dmReportTitle: '🚓 BCSO MESAI RAPORU',
       dmReportDesc: (duration, totalTime, clockIn, clockOut) => `⏱️ **Bu Oturum Süresi:** \`${duration}\`\n📊 **Güncel Toplam Süreniz:** \`${totalTime}\`\n\n📅 **Giriş:** <t:${clockIn}:F>\n📅 **Çıkış:** <t:${clockOut}:F>`,
       logClockOutTitle: '🔴 PERSONEL GÖREVDEN AYRILDI',
       logClockOutDesc: (userId, userTag, highestRole, clockIn, clockOut, duration, totalTime) => `👤 **Memur:** <@${userId}> \`(${userTag})\`\n🎖️ **En Yüksek Rütbe:** <@&${highestRole}>\n\n⏰ **Giriş Zamanı:** <t:${clockIn}:F>\n⏰ **Çıkış Zamanı:** <t:${clockOut}:F>\n⏱️ **Görev Süresi:** \`${duration}\`\n\n📊 **Güncel Toplam Süre:** \`${totalTime}\``,
@@ -165,7 +165,7 @@ const translations = {
       infoFieldMemur: '👤 Memur',
       infoFieldRutbe: '🎖️ Rütbe',
       infoFieldTotal: '⏱️ Toplam Birikmiş Mesai',
-      infoFooter: 'LSPD Personel Bilgi Sistemi',
+      infoFooter: 'BCSO Personel Bilgi Sistemi',
       infoActiveStatus: '🟢 Aktif Görev Durumu',
       infoActiveVal: 'Şu anda **aktif** görevdesiniz.',
       infoInactiveVal: 'Şu anda aktif görevde **değilsiniz**.',
@@ -176,7 +176,7 @@ const translations = {
       ticketLabelSupervisor: '🛡️ Supervisor Destek',
       ticketLabelHighcommand: '👑 Highcommand Destek',
       ticketAlreadyOpen: (channelId) => `⚠️ Zaten açık bir destek talebiniz bulunuyor: <#${channelId}>`,
-      ticketWelcomeTitle: '🎫 LSPD DESTEK TALEBİ AÇILDI',
+      ticketWelcomeTitle: '🎫 BCSO DESTEK TALEBİ AÇILDI',
       ticketWelcomeDesc: (userId) => `Merhaba <@${userId}>, destek talebiniz başarıyla oluşturulmuştur.\nİlgili birim yetkilisi en kısa sürede sizinle iletişime geçecektir.\n\n**📌 YETKİLİYE YARDIMCI OLMAK İÇİN:**\n• Talebinizin konusunu net bir dille belirtin.\n• Varsa delil, SS veya video bağlantılarını buraya ekleyin.`,
       ticketWelcomeFieldOwner: '👤 Talep Sahibi',
       ticketWelcomeFieldCategory: '🏷️ Destek Kategorisi',
@@ -184,7 +184,7 @@ const translations = {
       ticketOpenSuccess: (channelId) => `✅ Destek talebiniz oluşturuldu: <#${channelId}>`,
       ticketLogOpenTitle: '🔓 YENİ DESTEK TALEBİ AÇILDI',
       ticketLogOpenDesc: (userId, userTag, categoryLabel, channelId) => `👤 **Kullanıcı:** <@${userId}> \`(${userTag})\`\n🏷️ **Destek Kategorisi:** \`${categoryLabel}\`\n💬 **Kanal:** <#${channelId}>`,
-      ticketLogFooter: 'LSPD Ticket Log',
+      ticketLogFooter: 'BCSO Ticket Log',
       ticketCloseNotActive: '❌ Bu kanal bir aktif destek talebi olarak kaydedilmemiş veya zaten kapatılmış.',
       ticketClosingMsg: '🔒 **Destek talebi kapatılıyor...** Kanal 5 saniye içerisinde silinecektir.',
       ticketLogCloseTitle: '🔒 DESTEK TALEBİ KAPATILDI',
@@ -234,9 +234,9 @@ const translations = {
       }
     },
     yardim: {
-      title: '📚 LSPD BOT COMMAND GUIDE',
+      title: '📚 BCSO BOT COMMAND GUIDE',
       description: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-        'All active commands on the LSPD Shift and Support Bot are listed below:\n\n' +
+        'All active commands on the BCSO Shift and Support Bot are listed below:\n\n' +
         '👮 **OFFICER COMMANDS:**\n' +
         '• `/mesai sorgula` — Shows your shift details and active status.\n' +
         '• `/mesai aktif-memurlar` — Lists the officers currently on active duty.\n' +
@@ -257,7 +257,7 @@ const translations = {
         '• `/ticket-paneli-gonder [kanal]` — Sends the ticket panel message to the specified channel.\n' +
         '• `/dil-ayarla [dil]` — Sets the language option of the bot (TR / EN).\n\n' +
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',
-      footer: 'LSPD Help System'
+      footer: 'BCSO Help System'
     },
     kurulum: {
       logCategory: 'Bot Log - Shift',
@@ -270,7 +270,7 @@ const translations = {
       shiftGirisPanel: 'shift-login',
       gunlukVeri: 'daily-data',
       ticketSupport: 'ticket-support',
-      success: '✅ **LSPD Bot Setup Completed Successfully!**\n\n📌 **Created Channels:**\n• <#{panelChannel}> (Shift Entry Panel)\n• <#{ticketChannel}> (Ticket Support Panel)\n• <#{girisLog}> (Login Logs)\n• <#{cikisLog}> (Logout Logs)\n• <#{yetkiliLog}> (Staff Action Logs)\n• <#{ticketLog}> (Ticket Logs)\n\n📌 **Assigned Permission Roles:**\n• Officer Role: <@&{officer}>\n• Shift Manager: <@&{manager}>\n• Supervisor: <@&{supervisor}>\n• Highcommand: <@&{highcommand}>'
+      success: '✅ **BCSO Bot Setup Completed Successfully!**\n\n📌 **Created Channels:**\n• <#{panelChannel}> (Shift Entry Panel)\n• <#{ticketChannel}> (Ticket Support Panel)\n• <#{girisLog}> (Login Logs)\n• <#{cikisLog}> (Logout Logs)\n• <#{yetkiliLog}> (Staff Action Logs)\n• <#{ticketLog}> (Ticket Logs)\n\n📌 **Assigned Permission Roles:**\n• Officer Role: <@&{officer}>\n• Shift Manager: <@&{manager}>\n• Supervisor: <@&{supervisor}>\n• Highcommand: <@&{highcommand}>'
     },
     kurulumSil: {
       noRecord: '❌ No active installation record found on the server.',
@@ -278,9 +278,9 @@ const translations = {
       success: (count) => `✅ **System Successfully Removed!**\n\n• A total of **${count}** channels and categories were deleted.\n• Guild configuration settings cleared from database.`
     },
     mesaiPanel: {
-      title: '👮 LSPD DEPARTMENT DUTY TRACKING PANEL',
+      title: '👮 BCSO DEPARTMENT DUTY TRACKING PANEL',
       desc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-        'Welcome to the system prepared to keep track of LSPD personnel\'s shift hours.\n\n' +
+        'Welcome to the system prepared to keep track of BCSO personnel\'s shift hours.\n\n' +
         '**📌 INFORMATION & RULES:**\n' +
         '• Before starting duty, press the **Clock In** button to activate your duration.\n' +
         '• When your duty is over, end your shift record with the **Clock Out** button.\n' +
@@ -290,7 +290,7 @@ const translations = {
         '🔴 **Clock Out:** Ends duty, saves duration.\n' +
         'ℹ️ **Shift Info:** Shows your total time and current shift status.\n\n' +
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',
-      footer: 'Los Santos Police Department',
+      footer: 'Blaine County Sheriff\'s Office',
       btnGiris: 'Clock In',
       btnCikis: 'Clock Out',
       btnBilgi: 'Shift Info',
@@ -298,7 +298,7 @@ const translations = {
       error: '❌ Error occurred while sending panel. Make sure the bot has send message permission in the channel.'
     },
     ticket: {
-      title: '💼 LSPD DEPARTMENT SUPPORT PANEL',
+      title: '💼 BCSO DEPARTMENT SUPPORT PANEL',
       desc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
         'You can use the relevant department button to meet with department officials, report complaints, or contact command staff.\n\n' +
         '**📌 SUPPORT UNITS:**\n' +
@@ -308,7 +308,7 @@ const translations = {
         '**⚠️ NOTICE:**\n' +
         'Unnecessary ticket opening may lead to disciplinary actions. Please select the correct unit appropriate for your issue.\n\n' +
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',
-      footer: 'Los Santos Police Department',
+      footer: 'Blaine County Sheriff\'s Office',
       btnSupervisor: 'Supervisor Support',
       btnHighcommand: 'Highcommand Support',
       btnGenel: 'General Support',
@@ -317,7 +317,7 @@ const translations = {
     },
     mesai: {
       sorgulaTitle: (username) => `📊 DUTY REPORT - ${username}`,
-      sorgulaFooter: 'LSPD Personnel Info System',
+      sorgulaFooter: 'BCSO Personnel Info System',
       fieldMemur: '👤 Officer',
       fieldRutbe: '🎖️ Rank',
       fieldRutbeUnknown: 'Unknown',
@@ -330,13 +330,13 @@ const translations = {
       noActiveDutyMsg: '❌ You do not have permission to query another officer\'s shift details.',
       aktifTitle: '🚓 DEPARTMENT ACTIVE OFFICERS LIST',
       aktifDesc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\nOfficers currently on active duty in the server are listed below:\n',
-      aktifFooter: 'LSPD Active Personnel Tracking',
+      aktifFooter: 'BCSO Active Personnel Tracking',
       noActiveDutyOfficers: 'ℹ️ There are currently no officers on active duty.',
       aktifLine: (userId, time, relativeTime, duration) => `• <@${userId}> — Started: <t:${time}:t> (<t:${relativeTime}:R>) — On Duty: **${duration}**\n`,
       ayarlaSuccess: (userId, hours, duration) => `✅ <@${userId}> officer's total shift set to **${hours} hours** (${duration}).`,
       logAyarlaTitle: '⚙️ SHIFT TIME ADJUSTED',
       logAyarlaDesc: (staffId, targetId, hours, duration) => `👮 **Authorized Staff:** <@${staffId}>\n👤 **Officer:** <@${targetId}>\n📝 **New Configured Duration:** **${hours} hours** (\`${duration}\`)`,
-      logFooter: 'LSPD Staff Action Log',
+      logFooter: 'BCSO Staff Action Log',
       sifirlaSuccess: (userId) => `✅ <@${userId}> officer's entire shift history and total hours have been reset.`,
       logSifirlaTitle: '💥 SHIFT RESET',
       logSifirlaDesc: (staffId, targetId) => `👮 **Staff Who Reset:** <@${staffId}>\n👤 **Officer:** <@${targetId}>\n\n**⚠️ NOTICE:** All active shifts for this officer have been terminated and total shift duration is set to 0.`,
@@ -344,7 +344,7 @@ const translations = {
       baslatAlreadyActive: (userId) => `❌ Officer <@${userId}> already has an active shift.`,
       logBaslatTitle: '🟢 MANUEL SHIFT STARTED',
       logBaslatDesc: (staffId, targetId, highestRole, time, totalTime) => `👮 **Staff Who Started:** <@${staffId}>\n👤 **Officer:** <@${targetId}>\n🎖️ **Highest Rank:** <@&${highestRole}>\n⏰ **Clock-in Time:** <t:${time}:F> (<t:${time}:R>)\n\n📊 **Accumulated Total Duration:** \`${totalTime}\``,
-      logGirisFooter: 'LSPD Duty Log System',
+      logGirisFooter: 'BCSO Duty Log System',
       bitirEkleSuccess: (userId, duration) => `✅ <@${userId}> officer's active shift was terminated and duration **${duration}** was **added** to total hours.`,
       bitirEkleNoShift: (userId) => `❌ Officer <@${userId}> does not have an active shift.`,
       bitirEkleDM: (duration, totalTime) => `🚨 Your active shift has been terminated by staff. Session duration (**${duration}**) has been added to your total shift. Total duration: **${totalTime}**`,
@@ -358,10 +358,10 @@ const translations = {
       modalEkleLabel: 'Time to Add (Minutes)',
       modalAzaltTitle: 'Reduce Shift Time',
       modalAzaltLabel: 'Time to Reduce (Minutes)',
-      siralamaTitle: '🏆 LSPD SHIFT DURATION LEADERBOARD',
+      siralamaTitle: '🏆 BCSO SHIFT DURATION LEADERBOARD',
       siralamaDesc: '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\nTop 10 officers with most shift hours are listed below:\n',
       siralamaEmpty: 'ℹ️ No shift records registered in the server yet.',
-      siralamaFooter: 'LSPD Shift Leaderboard System'
+      siralamaFooter: 'BCSO Shift Leaderboard System'
     },
     buttons: {
       noOfficerRoleMsg: (officerRole) => `❌ You must have <@&${officerRole}> (Officer) role to use this system!`,
@@ -369,10 +369,10 @@ const translations = {
       clockInSuccess: (time) => `🟢 **Successfully clocked in!**\n⏰ **Clock-in Time:** <t:${time}:T>\n👮 We wish you success in your duty, have a safe shift!`,
       logClockInTitle: '🟢 OFFICER STARTED DUTY',
       logClockInDesc: (userId, userTag, highestRole, time, totalTime) => `👤 **Officer:** <@${userId}> \`(${userTag})\`\n🎖️ **Highest Rank:** <@&${highestRole}>\n⏰ **Clock-in Time:** <t:${time}:F> (<t:${time}:R>)\n\n📊 **Accumulated Total Duration:** \`${totalTime}\``,
-      logShiftFooter: 'LSPD Duty Log System',
+      logShiftFooter: 'BCSO Duty Log System',
       clockOutNoShift: '⚠️ You do not have an active shift! You must clock in before clocking out.',
       clockOutSuccess: (duration, totalTime) => `🔴 **Shift successfully terminated!**\n⏱️ Duration this shift: **${duration}**\n📊 Total shift duration: **${totalTime}**`,
-      dmReportTitle: '🚓 LSPD SHIFT REPORT',
+      dmReportTitle: '🚓 BCSO SHIFT REPORT',
       dmReportDesc: (duration, totalTime, clockIn, clockOut) => `⏱️ **This Session Duration:** \`${duration}\`\n📊 **Your Current Total Duration:** \`${totalTime}\`\n\n📅 **Clock-in:** <t:${clockIn}:F>\n📅 **Clock-out:** <t:${clockOut}:F>`,
       logClockOutTitle: '🔴 OFFICER LEFT DUTY',
       logClockOutDesc: (userId, userTag, highestRole, clockIn, clockOut, duration, totalTime) => `👤 **Officer:** <@${userId}> \`(${userTag})\`\n🎖️ **Highest Rank:** <@&${highestRole}>\n\n⏰ **Clock-in Time:** <t:${clockIn}:F>\n⏰ **Clock-out Time:** <t:${clockOut}:F>\n⏱️ **Shift Duration:** \`${duration}\`\n\n📊 **Current Total Duration:** \`${totalTime}\``,
@@ -380,7 +380,7 @@ const translations = {
       infoFieldMemur: '👤 Officer',
       infoFieldRutbe: '🎖️ Rank',
       infoFieldTotal: '⏱️ Total Accumulated Shift',
-      infoFooter: 'LSPD Personnel Info System',
+      infoFooter: 'BCSO Personnel Info System',
       infoActiveStatus: '🟢 Active Duty Status',
       infoActiveVal: 'You are currently **active** on duty.',
       infoInactiveVal: 'You are currently **not** on duty.',
@@ -391,7 +391,7 @@ const translations = {
       ticketLabelSupervisor: '🛡️ Supervisor Support',
       ticketLabelHighcommand: '👑 Highcommand Support',
       ticketAlreadyOpen: (channelId) => `⚠️ You already have an open support ticket: <#${channelId}>`,
-      ticketWelcomeTitle: '🎫 LSPD SUPPORT TICKET OPENED',
+      ticketWelcomeTitle: '🎫 BCSO SUPPORT TICKET OPENED',
       ticketWelcomeDesc: (userId) => `Hello <@${userId}>, your support ticket has been created successfully.\nThe relevant department staff will contact you shortly.\n\n**📌 TO HELP STAFF:**\n• Clearly state the subject of your request.\n• Attach any evidence, screenshots or video links here.`,
       ticketWelcomeFieldOwner: '👤 Ticket Owner',
       ticketWelcomeFieldCategory: '🏷️ Support Category',
@@ -399,7 +399,7 @@ const translations = {
       ticketOpenSuccess: (channelId) => `✅ Your support ticket has been created: <#${channelId}>`,
       ticketLogOpenTitle: '🔓 NEW SUPPORT TICKET OPENED',
       ticketLogOpenDesc: (userId, userTag, categoryLabel, channelId) => `👤 **User:** <@${userId}> \`(${userTag})\`\n🏷️ **Support Category:** \`${categoryLabel}\`\n💬 **Channel:** <#${channelId}>`,
-      ticketLogFooter: 'LSPD Ticket Log',
+      ticketLogFooter: 'BCSO Ticket Log',
       ticketCloseNotActive: '❌ This channel is not registered as an active support ticket or is already closed.',
       ticketClosingMsg: '🔒 **Closing support ticket...** The channel will be deleted in 5 seconds.',
       ticketLogCloseTitle: '🔒 SUPPORT TICKET CLOSED',

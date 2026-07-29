@@ -260,7 +260,7 @@ module.exports = {
           { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime)}\``, inline: true }
         )
         .setTimestamp()
-        .setFooter({ text: 'LSPD Personel Bilgi Sistemi', iconURL: guild.iconURL() });
+        .setFooter({ text: 'BCSO Personel Bilgi Sistemi', iconURL: guild.iconURL() });
 
       if (activeShift) {
         const elapsed = Date.now() - activeShift.clockIn.getTime();
@@ -290,7 +290,7 @@ module.exports = {
         .setColor(0x2ECC71)
         .setTimestamp()
         .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'LSPD Aktif Personel Takibi', iconURL: guild.iconURL() });
+        .setFooter({ text: 'BCSO Aktif Personel Takibi', iconURL: guild.iconURL() });
 
       let desc = embed.data.description;
       for (const shift of activeShifts) {
@@ -546,7 +546,7 @@ module.exports = {
         .setColor(0xF1C40F)
         .setTimestamp()
         .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'LSPD Genel Mesai Sıralaması', iconURL: guild.iconURL() });
+        .setFooter({ text: 'BCSO Genel Mesai Sıralaması', iconURL: guild.iconURL() });
 
       // 2. Prime Mesai Embed
       const primeEmbed = new EmbedBuilder()
@@ -562,7 +562,7 @@ module.exports = {
         .setColor(0xE74C3C)
         .setTimestamp()
         .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'LSPD Prime Mesai Sıralaması', iconURL: guild.iconURL() });
+        .setFooter({ text: 'BCSO Prime Mesai Sıralaması', iconURL: guild.iconURL() });
 
       return interaction.editReply({ embeds: [genelEmbed, primeEmbed] });
     }

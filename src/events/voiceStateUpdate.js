@@ -72,7 +72,7 @@ module.exports = {
             )
             .setColor(0xC0392B)
             .setTimestamp()
-            .setFooter({ text: 'LSPD Görev Takip Sistemi', iconURL: guild.iconURL() });
+            .setFooter({ text: 'BCSO Görev Takip Sistemi', iconURL: guild.iconURL() });
 
           await member.send({ embeds: [dmEmbed] });
         } catch (err) {
@@ -99,7 +99,7 @@ module.exports = {
               .setColor(0xC0392B)
               .setTimestamp()
               .setThumbnail(member.user.displayAvatarURL())
-              .setFooter({ text: 'LSPD Otomatik Mesai Düşürme Sistemi', iconURL: guild.iconURL() });
+              .setFooter({ text: 'BCSO Otomatik Mesai Düşürme Sistemi', iconURL: guild.iconURL() });
 
             await logChannel.send({ embeds: [logEmbed] });
           }
