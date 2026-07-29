@@ -51,6 +51,10 @@ module.exports = {
       .setThumbnail(guild.iconURL())
       .setFooter({ text: t(config, 'mesaiPanel.footer'), iconURL: guild.iconURL() });
 
+    if (config && config.panelImage) {
+      mesaiEmbed.setImage(config.panelImage);
+    }
+
     const mesaiRow = new ActionRowBuilder()
       .addComponents(
         new ButtonBuilder()
@@ -71,7 +75,12 @@ module.exports = {
       );
 
     try {
-      await targetChannel.send({ embeds: [mesaiEmbed], components: [mesaiRow] });
+      const panelMsg = await targetChannel.send({ embeds: [mesaiEmbed], components: [mesaiRow] });
+      if (config) {
+        config.panelMessageId = panelMsg.id;
+        config.channels.mesaiGirisPanel = targetChannel.id;
+        await config.save();
+      }
       await interaction.reply({ content: t(config, 'mesaiPanel.success', targetChannel.id), ephemeral: true });
     } catch (error) {
       console.error(error);

@@ -24,7 +24,9 @@ const GuildConfigSchema = new mongoose.Schema({
     logCategory: { type: String, default: null },
     panelCategory: { type: String, default: null },
     ticketCategory: { type: String, default: null }
-  }
+  },
+  panelImage: { type: String, default: null },
+  panelMessageId: { type: String, default: null }
 });
 
 module.exports = mongoose.model('GuildConfig', GuildConfigSchema);

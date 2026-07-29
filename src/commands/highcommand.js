@@ -23,6 +23,17 @@ module.exports = {
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)
         )
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('panelresmi')
+        .setDescription('Mesai panelinin altındaki resim/banner görselini ayarlar veya kaldırır.')
+        .addStringOption(opt =>
+          opt
+            .setName('url')
+            .setDescription('Görselin URL\'si (https:// ile başlamalıdır). Boş bırakırsanız görsel silinir.')
+            .setRequired(false)
+        )
     ),
 
   async execute(interaction) {
@@ -73,6 +84,64 @@ module.exports = {
       await interaction.editReply({ embeds: [embed] });
 
       console.log(`[HourlyLog] Guild ${guild.name}: saatlikMesaiLog channel set to #${channel.name} (${channel.id}) by ${interaction.user.tag}`);
+    } 
+    
+    else if (subcommand === 'panelresmi') {
+      const url = interaction.options.getString('url');
+
+      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+        return interaction.editReply({
+          content: '❌ Lütfen geçerli bir resim bağlantısı (URL) girin. (http:// veya https:// ile başlamalıdır)'
+        });
+      }
+
+      config.panelImage = url || null;
+      await config.save();
+
+      // Canlıdaki mesai panelini anında güncellemeye çalış
+      let panelUpdated = false;
+      if (config.channels.mesaiGirisPanel && config.panelMessageId) {
+        try {
+          const channel = await guild.channels.fetch(config.channels.mesaiGirisPanel).catch(() => null);
+          if (channel) {
+            const message = await channel.messages.fetch(config.panelMessageId).catch(() => null);
+            if (message && message.embeds.length > 0) {
+              const oldEmbed = message.embeds[0];
+              const newEmbed = EmbedBuilder.from(oldEmbed);
+              
+              if (url) {
+                newEmbed.setImage(url);
+              } else {
+                newEmbed.setImage(null);
+              }
+
+              await message.edit({ embeds: [newEmbed] });
+              panelUpdated = true;
+            }
+          }
+        } catch (editError) {
+          console.error('[PanelImage] Canlı panel mesajı güncellenirken hata oluştu:', editError.message);
+        }
+      }
+
+      const embed = new EmbedBuilder()
+        .setTitle('✅ Mesai Paneli Görseli Güncellendi')
+        .setDescription(
+          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
+          (url ? `🖼️ **Yeni Görsel:** [Görüntüle](${url})\n` : '🗑️ **Görsel Kaldırıldı**\n') +
+          (panelUpdated ? '⚡ Canlıdaki mevcut mesai paneli de anında güncellendi!\n' : '⚠️ Canlıdaki mevcut mesai paneli bulunamadığı için sadece kaydedildi (bir sonraki kurulumda/gönderimde aktif olacaktır).\n') +
+          '\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+        )
+        .setColor(0x2ECC71)
+        .setTimestamp()
+        .setFooter({ text: `Ayarlayan: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+
+      if (url) {
+        embed.setImage(url);
+      }
+
+      await interaction.editReply({ embeds: [embed] });
+      console.log(`[PanelImage] Guild ${guild.name}: panelImage set by ${interaction.user.tag}`);
     }
   }
 };

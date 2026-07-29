@@ -237,6 +237,10 @@ module.exports = {
         .setThumbnail(guild.iconURL())
         .setFooter({ text: t(config, 'mesaiPanel.footer'), iconURL: guild.iconURL() });
 
+      if (config.panelImage) {
+        mesaiEmbed.setImage(config.panelImage);
+      }
+
       const mesaiRow = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
@@ -256,7 +260,9 @@ module.exports = {
             .setEmoji('ℹ️')
         );
 
-      await mesaiGirisPanel.send({ embeds: [mesaiEmbed], components: [mesaiRow] });
+      const panelMsg = await mesaiGirisPanel.send({ embeds: [mesaiEmbed], components: [mesaiRow] });
+      config.panelMessageId = panelMsg.id;
+      await config.save();
 
       // 5. Premium Ticket Panel Mesajını Gönder
       const ticketEmbed = new EmbedBuilder()
