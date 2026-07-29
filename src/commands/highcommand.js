@@ -6,6 +6,7 @@ const {
 } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
 const { t } = require('../utils/i18n');
+const { sendHourlyLog } = require('../utils/hourlyLog');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -46,6 +47,11 @@ module.exports = {
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)
         )
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('saatliklogtest')
+        .setDescription('Saatlik mesai logunu hemen manuel olarak tetikler ve kanala gönderir.')
     ),
 
   async execute(interaction) {
@@ -178,6 +184,13 @@ module.exports = {
 
       await interaction.editReply({ embeds: [embed] });
       console.log(`[ActivityTest] Guild ${guild.name}: aktiflikTestLog channel set to #${channel.name} by ${interaction.user.tag}`);
+    }
+
+    else if (subcommand === 'saatliklogtest') {
+      await sendHourlyLog(interaction.client);
+      await interaction.editReply({
+        content: '✅ Saatlik mesai logu manuel olarak tetiklendi ve `#saatlik-mesai-log` kanalına gönderildi!'
+      });
     }
   }
 };

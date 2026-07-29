@@ -73,7 +73,7 @@ module.exports = {
             .setColor(0xC0392B)
             .setTimestamp()
             .setFooter({ text: 'LSPD Görev Takip Sistemi', iconURL: guild.iconURL() });
-          
+
           await member.send({ embeds: [dmEmbed] });
         } catch (err) {
           console.log(`[VoiceStateUpdate] DM gönderilemedi (${member.user.tag}): DM kutusu kapalı olabilir.`);

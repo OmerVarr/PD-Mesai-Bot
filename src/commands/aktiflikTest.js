@@ -21,6 +21,7 @@ module.exports = {
         .setDescription('Testin süresi (saat)')
         .setRequired(true)
         .addChoices(
+          { name: '1 Dakika (Test)', value: 0 },
           { name: '8 Saat', value: 8 },
           { name: '12 Saat', value: 12 },
           { name: '24 Saat', value: 24 },
@@ -63,14 +64,16 @@ module.exports = {
 
     const hours = interaction.options.getInteger('sure');
     const now = new Date();
-    const endsAt = new Date(now.getTime() + hours * 60 * 60 * 1000);
+    const durationMs = hours === 0 ? 60 * 1000 : hours * 60 * 60 * 1000;
+    const endsAt = new Date(now.getTime() + durationMs);
+    const durationLabel = hours === 0 ? '1 dakika (Test Mode)' : `${hours} saat`;
 
     const testEmbed = new EmbedBuilder()
       .setTitle('🔔 AKTİFLİK TESTİ BAŞLATILDI')
       .setDescription(
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
         `Tüm memurlar **belirtilen süre** içerisinde aşağıdaki butona tıklamalıdır.\n\n` +
-        `⏱️ **Süre:** \`${hours} saat\`\n` +
+        `⏱️ **Süre:** \`${durationLabel}\`\n` +
         `📅 **Başlangıç:** <t:${Math.floor(now.getTime() / 1000)}:F>\n` +
         `📅 **Bitiş:** <t:${Math.floor(endsAt.getTime() / 1000)}:F> (<t:${Math.floor(endsAt.getTime() / 1000)}:R>)\n` +
         `👤 **Başlatan:** <@${interaction.user.id}>\n\n` +
