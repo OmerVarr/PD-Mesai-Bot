@@ -5,6 +5,7 @@ const GuildConfig = require('../models/GuildConfig');
 const { formatTime } = require('../utils/formatTime');
 const { t } = require('../utils/i18n');
 const { addDutyPrefix, removeDutyPrefix } = require('../utils/nickname');
+const { calculatePrimeTime } = require('../utils/primeTime');
 
 module.exports = {
   async handle(interaction, client) {
@@ -98,17 +99,20 @@ module.exports = {
 
       const clockOut = new Date();
       const duration = clockOut.getTime() - activeShift.clockIn.getTime();
+      const primeDuration = calculatePrimeTime(activeShift.clockIn, clockOut);
       
       activeShift.clockOut = clockOut;
       activeShift.duration = duration;
+      activeShift.primeDuration = primeDuration;
       activeShift.status = 'completed';
       await activeShift.save();
 
       let userTotal = await UserTotal.findOne({ userId: user.id, guildId: guild.id });
       if (!userTotal) {
-        userTotal = new UserTotal({ userId: user.id, guildId: guild.id, totalTime: 0 });
+        userTotal = new UserTotal({ userId: user.id, guildId: guild.id, totalTime: 0, primeTime: 0 });
       }
       userTotal.totalTime += duration;
+      userTotal.primeTime = (userTotal.primeTime || 0) + primeDuration;
       await userTotal.save();
 
       // Nickname'den [🚨] prefix kaldır
@@ -167,6 +171,8 @@ module.exports = {
       const activeShift = await Shift.findOne({ userId: user.id, guildId: guild.id, status: 'active' });
       const userTotal = await UserTotal.findOne({ userId: user.id, guildId: guild.id });
       const totalTime = userTotal ? userTotal.totalTime : 0;
+      const primeTime = userTotal ? (userTotal.primeTime || 0) : 0;
+      const normalTime = Math.max(0, totalTime - primeTime);
 
       const infoEmbed = new EmbedBuilder()
         .setTitle(t(config, 'buttons.infoTitle'))
@@ -176,7 +182,9 @@ module.exports = {
         .addFields(
           { name: t(config, 'buttons.infoFieldMemur'), value: `<@${user.id}>`, inline: true },
           { name: t(config, 'buttons.infoFieldRutbe'), value: `<@&${member.roles.highest.id}>`, inline: true },
-          { name: t(config, 'buttons.infoFieldTotal'), value: `\`${formatTime(totalTime, config.language)}\`` }
+          { name: '⏱️ Toplam Görev Süresi', value: `\`${formatTime(totalTime, config.language)}\``, inline: false },
+          { name: '🔥 Prime Görev Süresi (20:00 - 02:00)', value: `\`${formatTime(primeTime, config.language)}\``, inline: true },
+          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime, config.language)}\``, inline: true }
         )
         .setTimestamp()
         .setFooter({ text: t(config, 'buttons.infoFooter'), iconURL: guild.iconURL() });

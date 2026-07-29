@@ -13,6 +13,7 @@ const UserTotal = require('../models/UserTotal');
 const { formatTime } = require('../utils/formatTime');
 const { t } = require('../utils/i18n');
 const { addDutyPrefix, removeDutyPrefix } = require('../utils/nickname');
+const { calculatePrimeTime } = require('../utils/primeTime');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -241,6 +242,8 @@ module.exports = {
       const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
       const userTotal = await UserTotal.findOne({ userId: targetUser.id, guildId: guild.id });
       const totalTime = userTotal ? userTotal.totalTime : 0;
+      const primeTime = userTotal ? (userTotal.primeTime || 0) : 0;
+      const normalTime = Math.max(0, totalTime - primeTime);
 
       const activeShift = await Shift.findOne({ userId: targetUser.id, guildId: guild.id, status: 'active' });
 
@@ -252,7 +255,9 @@ module.exports = {
         .addFields(
           { name: '👤 Memur', value: `<@${targetUser.id}>`, inline: true },
           { name: '🎖️ Rütbe', value: targetMember ? `<@&${targetMember.roles.highest.id}>` : 'Bilinmiyor', inline: true },
-          { name: '⏱️ Toplam Görev Süresi', value: `\`${formatTime(totalTime)}\`` }
+          { name: '⏱️ Toplam Görev Süresi', value: `\`${formatTime(totalTime)}\``, inline: false },
+          { name: '🔥 Prime Görev Süresi (20:00 - 02:00)', value: `\`${formatTime(primeTime)}\``, inline: true },
+          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime)}\``, inline: true }
         )
         .setTimestamp()
         .setFooter({ text: 'LSPD Personel Bilgi Sistemi', iconURL: guild.iconURL() });
@@ -429,18 +434,21 @@ module.exports = {
 
       const clockOut = new Date();
       const duration = clockOut.getTime() - activeShift.clockIn.getTime();
+      const primeDuration = calculatePrimeTime(activeShift.clockIn, clockOut);
 
       activeShift.clockOut = clockOut;
       activeShift.duration = duration;
+      activeShift.primeDuration = primeDuration;
       activeShift.status = 'completed';
       await activeShift.save();
       if (targetMember) await removeDutyPrefix(targetMember);
 
       let userTotal = await UserTotal.findOne({ userId: targetUser.id, guildId: guild.id });
       if (!userTotal) {
-        userTotal = new UserTotal({ userId: targetUser.id, guildId: guild.id, totalTime: 0 });
+        userTotal = new UserTotal({ userId: targetUser.id, guildId: guild.id, totalTime: 0, primeTime: 0 });
       }
       userTotal.totalTime += duration;
+      userTotal.primeTime = (userTotal.primeTime || 0) + primeDuration;
       await userTotal.save();
 
       await interaction.editReply({ content: `✅ <@${targetUser.id}> memurunun aktif mesaisi bitirildi ve **${formatTime(duration)}** süresi toplam süresine **eklendi**.` });
@@ -517,33 +525,46 @@ module.exports = {
 
     // H. SIRALAMA (LEADERBOARD)
     else if (subcommand === 'siralama') {
-      const topUsers = await UserTotal.find({ guildId: guild.id }).sort({ totalTime: -1 }).limit(10);
+      const topGenel = await UserTotal.find({ guildId: guild.id }).sort({ totalTime: -1 }).limit(10);
+      const topPrime = await UserTotal.find({ guildId: guild.id, primeTime: { $gt: 0 } }).sort({ primeTime: -1 }).limit(10);
 
-      if (topUsers.length === 0) {
+      if (topGenel.length === 0) {
         return interaction.editReply({ content: t(config, 'mesai.siralamaEmpty') });
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle(t(config, 'mesai.siralamaTitle'))
-        .setDescription(t(config, 'mesai.siralamaDesc'))
+      const medals = ['🥇', '🥈', '🥉'];
+
+      // 1. Genel Mesai Embed
+      const genelEmbed = new EmbedBuilder()
+        .setTitle('🏆 GENEL MESAİ LİDERLİK TABLOSU')
+        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
+          topGenel.map((userTotal, index) => {
+            const rankEmoji = medals[index] || `🔹 **${index + 1}.**`;
+            return `${rankEmoji} <@${userTotal.userId}> — Toplam Süre: **${formatTime(userTotal.totalTime, config.language)}**`;
+          }).join('\n') +
+          '\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
         .setColor(0xF1C40F)
         .setTimestamp()
         .setThumbnail(guild.iconURL())
-        .setFooter({ text: t(config, 'mesai.siralamaFooter'), iconURL: guild.iconURL() });
+        .setFooter({ text: 'LSPD Genel Mesai Sıralaması', iconURL: guild.iconURL() });
 
-      let desc = embed.data.description;
-      const medals = ['🥇', '🥈', '🥉'];
+      // 2. Prime Mesai Embed
+      const primeEmbed = new EmbedBuilder()
+        .setTitle('🔥 PRİME MESAİ LİDERLİK TABLOSU (20:00 - 02:00)')
+        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
+          (topPrime.length === 0 
+            ? 'ℹ️ Henüz Prime saatlerde (20:00 - 02:00) mesai yapan bulunmamaktadır.' 
+            : topPrime.map((userTotal, index) => {
+                const rankEmoji = medals[index] || `🔹 **${index + 1}.**`;
+                return `${rankEmoji} <@${userTotal.userId}> — Prime Süre: **${formatTime(userTotal.primeTime, config.language)}**`;
+              }).join('\n')) +
+          '\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+        .setColor(0xE74C3C)
+        .setTimestamp()
+        .setThumbnail(guild.iconURL())
+        .setFooter({ text: 'LSPD Prime Mesai Sıralaması', iconURL: guild.iconURL() });
 
-      for (let i = 0; i < topUsers.length; i++) {
-        const userTotal = topUsers[i];
-        const rankEmoji = medals[i] || `🔹 **${i + 1}.**`;
-        desc += `${rankEmoji} <@${userTotal.userId}> — Toplam Süre: **${formatTime(userTotal.totalTime, config.language)}**\n`;
-      }
-
-      desc += '\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
-      embed.setDescription(desc);
-
-      return interaction.editReply({ embeds: [embed] });
+      return interaction.editReply({ embeds: [genelEmbed, primeEmbed] });
     }
   }
 };

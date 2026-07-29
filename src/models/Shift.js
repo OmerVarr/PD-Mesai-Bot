@@ -7,6 +7,7 @@ const ShiftSchema = new mongoose.Schema({
   clockIn: { type: Date, required: true },
   clockOut: { type: Date, default: null },
   duration: { type: Number, default: 0 }, // milisaniye cinsinden
+  primeDuration: { type: Number, default: 0 }, // prime mesai süresi (milisaniye)
   status: { type: String, enum: ['active', 'completed', 'cancelled'], default: 'active' }
 });
 
