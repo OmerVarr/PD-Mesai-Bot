@@ -36,6 +36,13 @@ module.exports = {
 
     // 1. MESAI GİRİŞ
     if (customId === 'mesai_giris') {
+      if (!member.voice.channel) {
+        return interaction.reply({
+          content: '❌ Mesaide olmak için bir ses kanalında bulunmanız gerekmektedir!',
+          ephemeral: true
+        });
+      }
+
       const activeShift = await Shift.findOne({ userId: user.id, guildId: guild.id, status: 'active' });
       if (activeShift) {
         const timeStarted = Math.floor(activeShift.clockIn.getTime() / 1000);
