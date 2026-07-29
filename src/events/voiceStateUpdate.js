@@ -56,7 +56,6 @@ module.exports = {
         // Bot durumunu güncelle (X kişi mesaide)
         await updateBotPresence(client);
 
-        const config = await GuildConfig.findOne({ guildId: guild.id });
         const formattedDuration = formatTime(duration, config ? config.language : 'tr');
         const formattedTotal = formatTime(userTotal.totalTime, config ? config.language : 'tr');
 
