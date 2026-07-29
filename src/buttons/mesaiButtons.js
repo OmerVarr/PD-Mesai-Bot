@@ -36,7 +36,12 @@ module.exports = {
 
     // 1. MESAI GİRİŞ
     if (customId === 'mesai_giris') {
-      if (!member.voice.channel) {
+      const isExempt = config.voiceExemptions && (
+        (config.voiceExemptions.users && config.voiceExemptions.users.includes(user.id)) ||
+        (config.voiceExemptions.roles && member.roles.cache.some(r => config.voiceExemptions.roles.includes(r.id)))
+      );
+
+      if (!isExempt && !member.voice.channel) {
         return interaction.reply({
           content: '❌ Mesaide olmak için bir ses kanalında bulunmanız gerekmektedir!',
           ephemeral: true

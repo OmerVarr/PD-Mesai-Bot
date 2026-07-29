@@ -21,6 +21,15 @@ module.exports = {
         const activeShift = await Shift.findOne({ userId: member.id, guildId: guild.id, status: 'active' });
         if (!activeShift) return; // Aktif mesaisi yoksa bir şey yapma
 
+        // Muafiyet kontrolü
+        const config = await GuildConfig.findOne({ guildId: guild.id });
+        const isExempt = config && config.voiceExemptions && (
+          (config.voiceExemptions.users && config.voiceExemptions.users.includes(member.id)) ||
+          (config.voiceExemptions.roles && member.roles.cache.some(r => config.voiceExemptions.roles.includes(r.id)))
+        );
+
+        if (isExempt) return; // Muaf olan kullanıcıları sesten çıkınca düşürme
+
         // Mesaiyi bitir
         const clockOut = new Date();
         const duration = clockOut.getTime() - activeShift.clockIn.getTime();

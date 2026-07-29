@@ -26,7 +26,11 @@ const GuildConfigSchema = new mongoose.Schema({
     ticketCategory: { type: String, default: null }
   },
   panelImage: { type: String, default: null },
-  panelMessageId: { type: String, default: null }
+  panelMessageId: { type: String, default: null },
+  voiceExemptions: {
+    users: [{ type: String }],
+    roles: [{ type: String }]
+  }
 });
 
 module.exports = mongoose.model('GuildConfig', GuildConfigSchema);
