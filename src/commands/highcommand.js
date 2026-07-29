@@ -34,6 +34,18 @@ module.exports = {
             .setDescription('Görselin URL\'si (https:// ile başlamalıdır). Boş bırakırsanız görsel silinir.')
             .setRequired(false)
         )
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('aktifliklog')
+        .setDescription('Aktiflik testi sonuçlarının gönderileceği kanalı ayarlar.')
+        .addChannelOption(opt =>
+          opt
+            .setName('kanal')
+            .setDescription('Aktiflik testi sonuçlarının atılacağı metin kanalı.')
+            .addChannelTypes(ChannelType.GuildText)
+            .setRequired(true)
+        )
     ),
 
   async execute(interaction) {
@@ -142,6 +154,30 @@ module.exports = {
 
       await interaction.editReply({ embeds: [embed] });
       console.log(`[PanelImage] Guild ${guild.name}: panelImage set by ${interaction.user.tag}`);
+    }
+
+    else if (subcommand === 'aktifliklog') {
+      const channel = interaction.options.getChannel('kanal');
+
+      const oldChannelId = config.channels.aktiflikTestLog;
+      config.channels.aktiflikTestLog = channel.id;
+      await config.save();
+
+      const embed = new EmbedBuilder()
+        .setTitle('✅ Aktiflik Test Log Kanalı Güncellendi')
+        .setDescription(
+          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
+          `📌 **Yeni Kanal:** <#${channel.id}>\n` +
+          (oldChannelId ? `🗑️ **Eski Kanal:** <#${oldChannelId}>\n` : '') +
+          `\nArtık aktiflik testi sonuçları bu kanala gönderilecektir.\n\n` +
+          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+        )
+        .setColor(0x2ECC71)
+        .setTimestamp()
+        .setFooter({ text: `Ayarlayan: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+
+      await interaction.editReply({ embeds: [embed] });
+      console.log(`[ActivityTest] Guild ${guild.name}: aktiflikTestLog channel set to #${channel.name} by ${interaction.user.tag}`);
     }
   }
 };

@@ -3,6 +3,7 @@ const ticketButtons = require('../buttons/ticketButtons');
 const mesaiModals = require('../modals/mesaiModals');
 const Whitelist = require('../models/Whitelist');
 const GuildConfig = require('../models/GuildConfig');
+const ActivityTest = require('../models/ActivityTest');
 const { t } = require('../utils/i18n');
 
 module.exports = {
@@ -59,6 +60,33 @@ module.exports = {
         } catch (error) {
           console.error('Ticket Button Interaction Error:', error);
           await interaction.reply({ content: 'Ticket butonu işlenirken bir hata oluştu!', ephemeral: true });
+        }
+      }
+      else if (customId === 'aktiflik_testi_katil') {
+        try {
+          const test = await ActivityTest.findOne({
+            messageId: interaction.message.id,
+            status: 'active'
+          });
+
+          if (!test) {
+            return interaction.reply({ content: '❌ Bu aktiflik testi artık aktif değil.', ephemeral: true });
+          }
+
+          if (test.responses.includes(interaction.user.id)) {
+            return interaction.reply({ content: '✅ Zaten katılım sağladınız!', ephemeral: true });
+          }
+
+          test.responses.push(interaction.user.id);
+          await test.save();
+
+          await interaction.reply({
+            content: `✅ Katılımınız başarıyla kaydedildi! (**${test.responses.length}** kişi katıldı)`,
+            ephemeral: true
+          });
+        } catch (error) {
+          console.error('Activity Test Button Error:', error);
+          await interaction.reply({ content: 'İşlem sırasında bir hata oluştu!', ephemeral: true });
         }
       }
     }
