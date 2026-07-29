@@ -6,6 +6,7 @@ const { formatTime } = require('../utils/formatTime');
 const { t } = require('../utils/i18n');
 const { addDutyPrefix, removeDutyPrefix } = require('../utils/nickname');
 const { calculatePrimeTime } = require('../utils/primeTime');
+const { updateBotPresence } = require('../utils/presence');
 
 module.exports = {
   async handle(interaction, client) {
@@ -85,6 +86,9 @@ module.exports = {
           await logChannel.send({ embeds: [logEmbed] });
         }
       }
+
+      // Bot durumunu güncelle (X kişi mesaide)
+      await updateBotPresence(client);
     }
 
     // 2. MESAI ÇIKIŞ
@@ -164,6 +168,9 @@ module.exports = {
           await logChannel.send({ embeds: [logEmbed] });
         }
       }
+
+      // Bot durumunu güncelle (X kişi mesaide)
+      await updateBotPresence(client);
     }
 
     // 3. MESAI BILGI

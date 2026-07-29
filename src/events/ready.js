@@ -2,16 +2,19 @@ const { ActivityType } = require('discord.js');
 const GuildConfig = require('../models/GuildConfig');
 const Whitelist = require('../models/Whitelist');
 const { connectToVoice } = require('../utils/voice');
+const { updateBotPresence } = require('../utils/presence');
 
 module.exports = {
   name: 'ready',
   once: true,
   async execute(client) {
     console.log(`Ready! Logged in as ${client.user.tag}`);
-    client.user.setPresence({
-      activities: [{ name: 'FiveM Mesai Sistemleri', type: ActivityType.Watching }],
-      status: 'online',
-    });
+
+    // İlk başlatmada aktif mesai sayısını göster
+    await updateBotPresence(client);
+
+    // Her 60 saniyede bir bot durumunu güncelle
+    setInterval(() => updateBotPresence(client), 60 * 1000);
 
     // Whitelist kontrolü - whitelist'te olmayan sunuculardan ayrıl
     try {
