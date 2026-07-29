@@ -3,6 +3,7 @@ const GuildConfig = require('../models/GuildConfig');
 const Whitelist = require('../models/Whitelist');
 const { connectToVoice } = require('../utils/voice');
 const { updateBotPresence } = require('../utils/presence');
+const { scheduleHourlyLog } = require('../utils/hourlyLog');
 
 module.exports = {
   name: 'ready',
@@ -46,6 +47,9 @@ module.exports = {
     } catch (error) {
       console.error('[Voice] Error during auto-connecting to voice channels on startup:', error);
     }
+
+    // Saatlik mesai log görevini planla
+    scheduleHourlyLog(client);
   },
 };
 

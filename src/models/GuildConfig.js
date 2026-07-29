@@ -17,7 +17,8 @@ const GuildConfigSchema = new mongoose.Schema({
     ticketLog: { type: String, default: null },
     mesaiGirisPanel: { type: String, default: null },
     gunlukVeri: { type: String, default: null },
-    ticketPanel: { type: String, default: null }
+    ticketPanel: { type: String, default: null },
+    saatlikMesaiLog: { type: String, default: null }
   },
   categories: {
     logCategory: { type: String, default: null },

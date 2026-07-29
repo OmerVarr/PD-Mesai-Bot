@@ -168,6 +168,12 @@ module.exports = {
         parent: logCategory.id
       });
 
+      const saatlikMesaiLog = await guild.channels.create({
+        name: 'saatlik-mesai-log',
+        type: ChannelType.GuildText,
+        parent: logCategory.id
+      });
+
       // Panel Kanalları
       const mesaiGirisPanel = await guild.channels.create({
         name: t(config, 'kurulum.shiftGirisPanel'),
@@ -203,7 +209,8 @@ module.exports = {
         ticketLog: ticketLog.id,
         mesaiGirisPanel: mesaiGirisPanel.id,
         gunlukVeri: gunlukVeri.id,
-        ticketPanel: ticketPanelChan.id
+        ticketPanel: ticketPanelChan.id,
+        saatlikMesaiLog: saatlikMesaiLog.id
       };
 
       config.categories = {
