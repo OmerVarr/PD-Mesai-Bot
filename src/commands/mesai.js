@@ -12,6 +12,7 @@ const Shift = require('../models/Shift');
 const UserTotal = require('../models/UserTotal');
 const { formatTime } = require('../utils/formatTime');
 const { t } = require('../utils/i18n');
+const { addDutyPrefix, removeDutyPrefix } = require('../utils/nickname');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -343,6 +344,8 @@ module.exports = {
 
       await UserTotal.deleteOne({ userId: targetUser.id, guildId: guild.id });
       await Shift.updateMany({ userId: targetUser.id, guildId: guild.id, status: 'active' }, { status: 'cancelled', clockOut: new Date() });
+      const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
+      if (targetMember) await removeDutyPrefix(targetMember);
 
       await interaction.editReply({ content: t(config, 'mesai.sifirlaSuccess', targetUser.id) });
 
@@ -387,6 +390,7 @@ module.exports = {
         status: 'active'
       });
       await shift.save();
+      await addDutyPrefix(targetMember);
 
       await interaction.editReply({ content: t(config, 'mesai.baslatSuccess', targetUser.id) });
 
@@ -430,6 +434,7 @@ module.exports = {
       activeShift.duration = duration;
       activeShift.status = 'completed';
       await activeShift.save();
+      if (targetMember) await removeDutyPrefix(targetMember);
 
       let userTotal = await UserTotal.findOne({ userId: targetUser.id, guildId: guild.id });
       if (!userTotal) {
@@ -479,6 +484,8 @@ module.exports = {
       activeShift.clockOut = clockOut;
       activeShift.status = 'cancelled';
       await activeShift.save();
+      const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
+      if (targetMember) await removeDutyPrefix(targetMember);
 
       await interaction.editReply({ content: t(config, 'mesai.bitirEklemeSuccess', targetUser.id) });
 

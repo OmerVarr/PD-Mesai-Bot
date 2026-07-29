@@ -4,6 +4,7 @@ const UserTotal = require('../models/UserTotal');
 const GuildConfig = require('../models/GuildConfig');
 const { formatTime } = require('../utils/formatTime');
 const { t } = require('../utils/i18n');
+const { addDutyPrefix, removeDutyPrefix } = require('../utils/nickname');
 
 module.exports = {
   async handle(interaction, client) {
@@ -51,6 +52,9 @@ module.exports = {
         status: 'active'
       });
       await shift.save();
+
+      // Nickname'e [🚨] prefix ekle
+      await addDutyPrefix(member);
 
       const userTotal = await UserTotal.findOne({ userId: user.id, guildId: guild.id });
       const currentTotal = userTotal ? userTotal.totalTime : 0;
@@ -106,6 +110,9 @@ module.exports = {
       }
       userTotal.totalTime += duration;
       await userTotal.save();
+
+      // Nickname'den [🚨] prefix kaldır
+      await removeDutyPrefix(member);
 
       const formattedDuration = formatTime(duration, config.language);
       const formattedTotal = formatTime(userTotal.totalTime, config.language);
