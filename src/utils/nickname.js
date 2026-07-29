@@ -5,12 +5,21 @@ const DUTY_PREFIX = '[🚨]';
  * @param {import('discord.js').GuildMember} member 
  */
 async function addDutyPrefix(member) {
-  if (!member) return;
+  if (!member || !member.guild) return;
   try {
-    const currentNick = member.nickname || member.user.displayName || member.user.username;
-    if (!currentNick.startsWith(DUTY_PREFIX)) {
-      const newNick = `${DUTY_PREFIX} ${currentNick}`;
-      await member.setNickname(newNick.slice(0, 32));
+    const guildMember = await member.guild.members.fetch(member.id).catch(() => member);
+    
+    // Check if the bot can manage this member's nickname
+    if (!guildMember.manageable) {
+      console.warn(`[Nickname] Cannot change nickname for ${guildMember.user?.tag || guildMember.id}. Reason: Member is Guild Owner OR Bot role is lower than Member role in Discord role list.`);
+      return;
+    }
+
+    const currentName = guildMember.nickname || guildMember.displayName || guildMember.user?.username;
+    if (!currentName.includes(DUTY_PREFIX)) {
+      const newNick = `${DUTY_PREFIX} ${currentName}`.slice(0, 32);
+      await guildMember.setNickname(newNick);
+      console.log(`[Nickname] Successfully added duty prefix for ${guildMember.user?.tag}: ${newNick}`);
     }
   } catch (error) {
     console.error(`[Nickname] Error adding duty prefix for ${member.user?.tag || member.id}:`, error.message);
@@ -22,12 +31,21 @@ async function addDutyPrefix(member) {
  * @param {import('discord.js').GuildMember} member 
  */
 async function removeDutyPrefix(member) {
-  if (!member) return;
+  if (!member || !member.guild) return;
   try {
-    const currentNick = member.nickname || member.displayName;
-    if (currentNick && currentNick.includes(DUTY_PREFIX)) {
-      const cleaned = currentNick.replace(/\[🚨\]\s*/g, '').trim();
-      await member.setNickname(cleaned.length > 0 ? cleaned : null);
+    const guildMember = await member.guild.members.fetch(member.id).catch(() => member);
+    
+    // Check if the bot can manage this member's nickname
+    if (!guildMember.manageable) {
+      console.warn(`[Nickname] Cannot change nickname for ${guildMember.user?.tag || guildMember.id}. Reason: Member is Guild Owner OR Bot role is lower than Member role in Discord role list.`);
+      return;
+    }
+
+    const currentName = guildMember.nickname || guildMember.displayName;
+    if (currentName && currentName.includes(DUTY_PREFIX)) {
+      const cleaned = currentName.replace(/\[🚨\]\s*/g, '').trim();
+      await guildMember.setNickname(cleaned.length > 0 ? cleaned : null);
+      console.log(`[Nickname] Successfully removed duty prefix for ${guildMember.user?.tag}`);
     }
   } catch (error) {
     console.error(`[Nickname] Error removing duty prefix for ${member.user?.tag || member.id}:`, error.message);
