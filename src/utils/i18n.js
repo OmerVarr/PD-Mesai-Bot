@@ -191,10 +191,10 @@ const translations = {
       ticketLogCloseDesc: (ownerId, staffId, staffTag, categoryLabel, openTime) => `👤 **Talebi Açan:** <@${ownerId}>\n👮 **Kapatan Yetkili:** <@${staffId}> \`(${staffTag})\`\n🏷️ **Destek Kategorisi:** \`${categoryLabel}\`\n⏳ **Açılış Zamanı:** <t:${openTime}:F>`
     },
     modals: {
-      ekleSuccess: (targetId, minutes, duration, totalTime) => `✅ <@${targetId}> memurunun toplam mesaisine **${minutes} dakika** (${duration}) eklendi.\n📊 Yeni Toplam: **${formatTime(totalTime, 'tr')}**`,
+      ekleSuccess: (targetId, minutes, duration, newTotal) => `✅ <@${targetId}> memurunun toplam mesaisine **${minutes} dakika** (${duration}) eklendi.\n📊 Yeni Toplam: **${newTotal}**`,
       logEkleTitle: '➕ MESAİ SÜRESİ EKLENDİ',
       logEkleDesc: (staffId, targetId, minutes, duration, oldTotal, newTotal) => `👮 **İşlemi Yapan Yetkili:** <@${staffId}>\n👤 **Memur:** <@${targetId}>\n\n⏳ **Eklenecek Süre:** **${minutes} dakika** (\`${duration}\`)\n📊 **Eski Toplam:** \`${oldTotal}\`\n📊 **Yeni Toplam:** \`${newTotal}\``,
-      azaltSuccess: (targetId, minutes, duration, totalTime) => `✅ <@${targetId}> memurunun toplam mesaisinden **${minutes} dakika** (${duration}) düşüldü.\n📊 Yeni Toplam: **${formatTime(totalTime, 'tr')}**`,
+      azaltSuccess: (targetId, minutes, duration, newTotal) => `✅ <@${targetId}> memurunun toplam mesaisinden **${minutes} dakika** (${duration}) düşüldü.\n📊 Yeni Toplam: **${newTotal}**`,
       logAzaltTitle: '➖ MESAİ SÜRESİ AZALTILDI',
       logAzaltDesc: (staffId, targetId, minutes, duration, oldTotal, newTotal) => `👮 **İşlemi Yapan Yetkili:** <@${staffId}>\n👤 **Memur:** <@${targetId}>\n\n⏳ **Azaltılacak Süre:** **${minutes} dakika** (\`${duration}\`)\n📊 **Eski Toplam:** \`${oldTotal}\`\n📊 **Yeni Toplam:** \`${newTotal}\``
     },
@@ -406,10 +406,10 @@ const translations = {
       ticketLogCloseDesc: (ownerId, staffId, staffTag, categoryLabel, openTime) => `👤 **Opened By:** <@${ownerId}>\n👮 **Closed By Staff:** <@${staffId}> \`(${staffTag})\`\n🏷️ **Support Category:** \`${categoryLabel}\`\n⏳ **Opening Time:** <t:${openTime}:F>`
     },
     modals: {
-      ekleSuccess: (targetId, minutes, duration, totalTime) => `✅ Added **${minutes} minutes** (${duration}) to officer <@${targetId}>'s total shift.\n📊 New Total: **${formatTime(totalTime, 'en')}**`,
+      ekleSuccess: (targetId, minutes, duration, newTotal) => `✅ Added **${minutes} minutes** (${duration}) to officer <@${targetId}>'s total shift.\n📊 New Total: **${newTotal}**`,
       logEkleTitle: '➕ SHIFT TIME ADDED',
       logEkleDesc: (staffId, targetId, minutes, duration, oldTotal, newTotal) => `👮 **Authorized Staff:** <@${staffId}>\n👤 **Officer:** <@${targetId}>\n\n⏳ **Duration Added:** **${minutes} minutes** (\`${duration}\`)\n📊 **Old Total:** \`${oldTotal}\`\n📊 **New Total:** \`${newTotal}\``,
-      azaltSuccess: (targetId, minutes, duration, totalTime) => `✅ Deducted **${minutes} minutes** (${duration}) from officer <@${targetId}>'s total shift.\n📊 New Total: **${formatTime(totalTime, 'en')}**`,
+      azaltSuccess: (targetId, minutes, duration, newTotal) => `✅ Deducted **${minutes} minutes** (${duration}) from officer <@${targetId}>'s total shift.\n📊 New Total: **${newTotal}**`,
       logAzaltTitle: '➖ SHIFT TIME REDUCED',
       logAzaltDesc: (staffId, targetId, minutes, duration, oldTotal, newTotal) => `👮 **Authorized Staff:** <@${staffId}>\n👤 **Officer:** <@${targetId}>\n\n⏳ **Duration Reduced:** **${minutes} minutes** (\`${duration}\`)\n📊 **Old Total:** \`${oldTotal}\`\n📊 **New Total:** \`${newTotal}\``
     },

@@ -42,7 +42,7 @@ module.exports = {
       const formattedOldTotal = formatTime(oldTotal, config ? config.language : 'tr');
 
       await interaction.reply({
-        content: t(config, 'modals.ekleSuccess', targetUserId, minutes, formattedDiff, userTotal.totalTime)
+        content: t(config, 'modals.ekleSuccess', targetUserId, minutes, formattedDiff, formattedNewTotal)
       });
 
       // Premium Yetkili Log (Ekleme)
@@ -73,7 +73,7 @@ module.exports = {
       const formattedOldTotal = formatTime(oldTotal, config ? config.language : 'tr');
 
       await interaction.reply({
-        content: t(config, 'modals.azaltSuccess', targetUserId, minutes, formattedDiff, userTotal.totalTime)
+        content: t(config, 'modals.azaltSuccess', targetUserId, minutes, formattedDiff, formattedNewTotal)
       });
 
       // Premium Yetkili Log (Azaltma)
