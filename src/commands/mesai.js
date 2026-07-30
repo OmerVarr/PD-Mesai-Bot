@@ -258,12 +258,12 @@ module.exports = {
         .addFields(
           { name: '👤 Memur', value: `<@${targetUser.id}>`, inline: true },
           { name: '🎖️ Rütbe', value: targetMember ? `<@&${targetMember.roles.highest.id}>` : 'Bilinmiyor', inline: true },
-          { name: '⏱️ Toplam Görev Süresi', value: `\`${formatTime(totalTime)}\``, inline: false },
-          { name: '🔥 Prime Görev Süresi (20:00 - 23:59)', value: `\`${formatTime(primeTime)}\``, inline: true },
-          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime)}\``, inline: true },
-          { name: '🕒 Son 24 Saat', value: `\`${formatTime(last24h)}\``, inline: true },
-          { name: '📅 Son 7 Gün', value: `\`${formatTime(last7d)}\``, inline: true },
-          { name: '📆 Son 30 Gün', value: `\`${formatTime(last30d)}\``, inline: true }
+          { name: '⏱️ Toplam Görev Süresi', value: `\`${formatTime(totalTime, config.language)}\``, inline: false },
+          { name: '🔥 Prime Görev Süresi (20:00 - 23:59)', value: `\`${formatTime(primeTime, config.language)}\``, inline: true },
+          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime, config.language)}\``, inline: true },
+          { name: '🕒 Son 24 Saat', value: `\`${formatTime(last24h, config.language)}\``, inline: true },
+          { name: '📅 Son 7 Gün', value: `\`${formatTime(last7d, config.language)}\``, inline: true },
+          { name: '📆 Son 30 Gün', value: `\`${formatTime(last30d, config.language)}\``, inline: true }
         )
         .setTimestamp()
         .setFooter({ text: 'BCSO Personel Bilgi Sistemi', iconURL: guild.iconURL() });
@@ -273,7 +273,7 @@ module.exports = {
         embed.addFields(
           { name: '🟢 Aktif Görev Durumu', value: 'Şu an **aktif** görevde.' },
           { name: '⏰ Giriş Zamanı', value: `<t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:F> (<t:${Math.floor(activeShift.clockIn.getTime() / 1000)}:R>)` },
-          { name: '⏳ Aktif Süre', value: `\`${formatTime(elapsed)}\`` }
+          { name: '⏳ Aktif Süre', value: `\`${formatTime(elapsed, config.language)}\`` }
         );
       } else {
         embed.addFields({ name: '🔴 Aktif Görev Durumu', value: 'Şu an görevde **değil**.' });

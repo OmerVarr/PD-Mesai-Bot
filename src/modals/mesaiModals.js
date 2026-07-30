@@ -14,6 +14,12 @@ module.exports = {
 
     const config = await GuildConfig.findOne({ guildId: guild.id });
 
+    if (!config) {
+      return interaction.reply({
+        content: '❌ Sunucu kurulumu bulunamadı! Önce `/kurulum-yap` komutunu çalıştırın.',
+        ephemeral: true
+      });
+    }
     const minutesInput = interaction.fields.getTextInputValue('sure_input');
     const minutes = parseInt(minutesInput, 10);
 
@@ -46,7 +52,7 @@ module.exports = {
       });
 
       // Premium Yetkili Log (Ekleme)
-      if (config && config.channels.mesaiYetkiliLog) {
+      if (config.channels?.mesaiYetkiliLog) {
         const logChan = guild.channels.cache.get(config.channels.mesaiYetkiliLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
@@ -77,7 +83,7 @@ module.exports = {
       });
 
       // Premium Yetkili Log (Azaltma)
-      if (config && config.channels.mesaiYetkiliLog) {
+      if (config.channels?.mesaiYetkiliLog) {
         const logChan = guild.channels.cache.get(config.channels.mesaiYetkiliLog);
         if (logChan) {
           const logEmbed = new EmbedBuilder()
