@@ -7,6 +7,7 @@ const {
 const GuildConfig = require('../models/GuildConfig');
 const { t } = require('../utils/i18n');
 const { sendHourlyLog } = require('../utils/hourlyLog');
+const { sendDailyLog } = require('../utils/dailyLog');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -52,6 +53,23 @@ module.exports = {
       sub
         .setName('saatliklogtest')
         .setDescription('Saatlik mesai logunu hemen manuel olarak tetikler ve kanala gönderir.')
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('gunluklogtest')
+        .setDescription('Günlük mesai logunu (saat 20:00 raporu) hemen manuel olarak tetikler ve kanala gönderir.')
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('gunlukverilog')
+        .setDescription('Günlük mesai verisi (saat 20:00 raporu) kanalını ayarlar veya yeni bir kanala atar.')
+        .addChannelOption(opt =>
+          opt
+            .setName('kanal')
+            .setDescription('Günlük mesai verilerinin atılacağı metin kanalı.')
+            .addChannelTypes(ChannelType.GuildText)
+            .setRequired(true)
+        )
     ),
 
   async execute(interaction) {
@@ -191,6 +209,37 @@ module.exports = {
       await interaction.editReply({
         content: '✅ Saatlik mesai logu manuel olarak tetiklendi ve `#saatlik-mesai-log` kanalına gönderildi!'
       });
+    }
+
+    else if (subcommand === 'gunluklogtest') {
+      await sendDailyLog(interaction.client);
+      await interaction.editReply({
+        content: '✅ Günlük mesai logu manuel olarak tetiklendi ve `#gunluk-veri` kanalına gönderildi!'
+      });
+    }
+
+    else if (subcommand === 'gunlukverilog') {
+      const channel = interaction.options.getChannel('kanal');
+
+      const oldChannelId = config.channels.gunlukVeri;
+      config.channels.gunlukVeri = channel.id;
+      await config.save();
+
+      const embed = new EmbedBuilder()
+        .setTitle('✅ Günlük Mesai Veri Kanalı Güncellendi')
+        .setDescription(
+          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
+          `📌 **Yeni Kanal:** <#${channel.id}>\n` +
+          (oldChannelId ? `🗑️ **Eski Kanal:** <#${oldChannelId}>\n` : '') +
+          `\nArtık her gün saat 20:00'de günlük mesai liderlik tablosu bu kanala gönderilecektir.\n\n` +
+          '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+        )
+        .setColor(0x2ECC71)
+        .setTimestamp()
+        .setFooter({ text: `Ayarlayan: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+
+      await interaction.editReply({ embeds: [embed] });
+      console.log(`[DailyLog] Guild ${guild.name}: gunlukVeri channel set to #${channel.name} (${channel.id}) by ${interaction.user.tag}`);
     }
   }
 };

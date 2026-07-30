@@ -34,7 +34,7 @@ module.exports = {
         },
         {
           name: '🏆 `/mesai siralama`',
-          value: 'Genel mesai süresi ve prime (20:00–02:00) süresi liderlik tablolarını gösterir.',
+          value: 'Genel mesai süresi ve prime (20:00–23:59) süresi liderlik tablolarını gösterir.',
           inline: false
         },
         {
@@ -220,7 +220,7 @@ module.exports = {
       )
       .addFields(
         {
-          name: '🔥 Prime Saat Sistemi (20:00 – 02:00)',
+          name: '🔥 Prime Saat Sistemi (20:00 – 23:59)',
           value: 'Bu saatler arasında yapılan mesailer **Prime Mesai** olarak ayrıca kaydedilir ve `/mesai siralama` komutunda ayrı bir tabloda görünür.',
           inline: false
         }

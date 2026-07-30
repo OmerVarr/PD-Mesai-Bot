@@ -14,6 +14,7 @@ const { formatTime } = require('../utils/formatTime');
 const { t } = require('../utils/i18n');
 const { addDutyPrefix, removeDutyPrefix } = require('../utils/nickname');
 const { calculatePrimeTime } = require('../utils/primeTime');
+const { getUserShiftStats } = require('../utils/shiftStats');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -247,6 +248,8 @@ module.exports = {
 
       const activeShift = await Shift.findOne({ userId: targetUser.id, guildId: guild.id, status: 'active' });
 
+      const { last24h, last7d, last30d } = await getUserShiftStats(targetUser.id, guild.id);
+
       const embed = new EmbedBuilder()
         .setTitle(`📊 GÖREV RAPORU - ${targetUser.username}`)
         .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
@@ -256,8 +259,11 @@ module.exports = {
           { name: '👤 Memur', value: `<@${targetUser.id}>`, inline: true },
           { name: '🎖️ Rütbe', value: targetMember ? `<@&${targetMember.roles.highest.id}>` : 'Bilinmiyor', inline: true },
           { name: '⏱️ Toplam Görev Süresi', value: `\`${formatTime(totalTime)}\``, inline: false },
-          { name: '🔥 Prime Görev Süresi (20:00 - 02:00)', value: `\`${formatTime(primeTime)}\``, inline: true },
-          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime)}\``, inline: true }
+          { name: '🔥 Prime Görev Süresi (20:00 - 23:59)', value: `\`${formatTime(primeTime)}\``, inline: true },
+          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime)}\``, inline: true },
+          { name: '🕒 Son 24 Saat', value: `\`${formatTime(last24h)}\``, inline: true },
+          { name: '📅 Son 7 Gün', value: `\`${formatTime(last7d)}\``, inline: true },
+          { name: '📆 Son 30 Gün', value: `\`${formatTime(last30d)}\``, inline: true }
         )
         .setTimestamp()
         .setFooter({ text: 'BCSO Personel Bilgi Sistemi', iconURL: guild.iconURL() });
@@ -550,10 +556,10 @@ module.exports = {
 
       // 2. Prime Mesai Embed
       const primeEmbed = new EmbedBuilder()
-        .setTitle('🔥 PRİME MESAİ LİDERLİK TABLOSU (20:00 - 02:00)')
+        .setTitle('🔥 PRİME MESAİ LİDERLİK TABLOSU (20:00 - 23:59)')
         .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
           (topPrime.length === 0 
-            ? 'ℹ️ Henüz Prime saatlerde (20:00 - 02:00) mesai yapan bulunmamaktadır.' 
+            ? 'ℹ️ Henüz Prime saatlerde (20:00 - 23:59) mesai yapan bulunmamaktadır.' 
             : topPrime.map((userTotal, index) => {
                 const rankEmoji = medals[index] || `🔹 **${index + 1}.**`;
                 return `${rankEmoji} <@${userTotal.userId}> — Prime Süre: **${formatTime(userTotal.primeTime, config.language)}**`;

@@ -4,6 +4,7 @@ const Whitelist = require('../models/Whitelist');
 const { connectToVoice } = require('../utils/voice');
 const { updateBotPresence } = require('../utils/presence');
 const { scheduleHourlyLog } = require('../utils/hourlyLog');
+const { scheduleDailyLog } = require('../utils/dailyLog');
 const { checkPendingTests } = require('../utils/activityScheduler');
 
 module.exports = {
@@ -51,6 +52,9 @@ module.exports = {
 
     // Saatlik mesai log görevini planla
     scheduleHourlyLog(client);
+
+    // Günlük mesai log görevini planla (Her gün 20:00)
+    scheduleDailyLog(client);
 
     // Yarım kalan aktiflik testlerini kontrol et
     await checkPendingTests(client);

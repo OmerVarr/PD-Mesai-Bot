@@ -11,7 +11,9 @@ const { formatTime } = require('./formatTime');
  */
 async function sendHourlyLog(client) {
   try {
-    const configs = await GuildConfig.find({ 'channels.saatlikMesaiLog': { $ne: null } });
+    const configs = await GuildConfig.find({
+      'channels.saatlikMesaiLog': { $exists: true, $ne: null, $nin: ['', null] }
+    });
 
     for (const config of configs) {
       try {
@@ -24,7 +26,8 @@ async function sendHourlyLog(client) {
         const activeShifts = await Shift.find({ guildId: config.guildId, status: 'active' });
 
         const now = new Date();
-        const logHour = `${String(now.getHours()).padStart(2, '0')}:00`;
+        const trHourStr = now.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', hour12: false }).split(':')[0];
+        const logHour = `${trHourStr.padStart(2, '0')}:00`;
 
         let desc = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n';
 
@@ -70,16 +73,28 @@ async function sendHourlyLog(client) {
  * @param {import('discord.js').Client} client
  */
 function scheduleHourlyLog(client) {
+  // Her dakika saatin başını kontrol et (setTimeout+setInterval zinciri bot
+  // restart sonrası kaybolur; bu yaklaşım daha güvenilirdir)
+  let lastFiredHour = -1;
+
+  function checkAndFire() {
+    const now = new Date();
+    const trHourStr = now.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', hour12: false }).split(':')[0];
+    const currentHour = parseInt(trHourStr, 10);
+    if (now.getMinutes() === 0 && currentHour !== lastFiredHour) {
+      lastFiredHour = currentHour;
+      sendHourlyLog(client);
+    }
+  }
+
+  // İlk ateşlemeye ne kadar kaldığını logla
   const now = new Date();
   const msUntilNextHour =
     (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
-
   console.log(`[HourlyLog] Next hourly log in ${Math.round(msUntilNextHour / 1000)} seconds.`);
 
-  setTimeout(() => {
-    sendHourlyLog(client);
-    setInterval(() => sendHourlyLog(client), 60 * 60 * 1000);
-  }, msUntilNextHour);
+  // Her 30 saniyede bir kontrol et (saat başını kaçırmamak için)
+  setInterval(checkAndFire, 30 * 1000);
 }
 
 module.exports = { sendHourlyLog, scheduleHourlyLog };

@@ -7,6 +7,7 @@ const { t } = require('../utils/i18n');
 const { addDutyPrefix, removeDutyPrefix } = require('../utils/nickname');
 const { calculatePrimeTime } = require('../utils/primeTime');
 const { updateBotPresence } = require('../utils/presence');
+const { getUserShiftStats } = require('../utils/shiftStats');
 
 module.exports = {
   async handle(interaction, client) {
@@ -193,6 +194,8 @@ module.exports = {
       const primeTime = userTotal ? (userTotal.primeTime || 0) : 0;
       const normalTime = Math.max(0, totalTime - primeTime);
 
+      const { last24h, last7d, last30d } = await getUserShiftStats(user.id, guild.id);
+
       const infoEmbed = new EmbedBuilder()
         .setTitle(t(config, 'buttons.infoTitle'))
         .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
@@ -202,8 +205,11 @@ module.exports = {
           { name: t(config, 'buttons.infoFieldMemur'), value: `<@${user.id}>`, inline: true },
           { name: t(config, 'buttons.infoFieldRutbe'), value: `<@&${member.roles.highest.id}>`, inline: true },
           { name: '⏱️ Toplam Görev Süresi', value: `\`${formatTime(totalTime, config.language)}\``, inline: false },
-          { name: '🔥 Prime Görev Süresi (20:00 - 02:00)', value: `\`${formatTime(primeTime, config.language)}\``, inline: true },
-          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime, config.language)}\``, inline: true }
+          { name: '🔥 Prime Görev Süresi (20:00 - 23:59)', value: `\`${formatTime(primeTime, config.language)}\``, inline: true },
+          { name: '☀️ Normal Görev Süresi', value: `\`${formatTime(normalTime, config.language)}\``, inline: true },
+          { name: '🕒 Son 24 Saat', value: `\`${formatTime(last24h, config.language)}\``, inline: true },
+          { name: '📅 Son 7 Gün', value: `\`${formatTime(last7d, config.language)}\``, inline: true },
+          { name: '📆 Son 30 Gün', value: `\`${formatTime(last30d, config.language)}\``, inline: true }
         )
         .setTimestamp()
         .setFooter({ text: t(config, 'buttons.infoFooter'), iconURL: guild.iconURL() });
