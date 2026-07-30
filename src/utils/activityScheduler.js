@@ -90,12 +90,30 @@ async function finalizeActivityTest(client, test) {
       .setColor(0xE74C3C);
 
     // Sonuçları log kanalına gönder
-    const logChannelId = config.channels.aktiflikTestLog;
+    let logChannelId = config.channels ? config.channels.aktiflikTestLog : null;
+    let logChannel = null;
+
     if (logChannelId) {
-      const logChannel = guild.channels.cache.get(logChannelId);
-      if (logChannel) {
-        await logChannel.send({ embeds: [resultEmbed, respondedEmbed, notRespondedEmbed] });
+      logChannel = await guild.channels.fetch(logChannelId).catch(() => null);
+    }
+
+    if (!logChannel) {
+      // Fallback: discord kanal ismine göre ara (kurulum ile oluşturulan 'aktiflik-test-log')
+      const channels = await guild.channels.fetch().catch(() => null);
+      if (channels) {
+        logChannel = channels.find(c => c && c.name === 'aktiflik-test-log' && c.isTextBased());
+        if (logChannel) {
+          if (!config.channels) config.channels = {};
+          config.channels.aktiflikTestLog = logChannel.id;
+          await config.save().catch(err => console.error('[ActivityTest] Config auto-save error:', err));
+        }
       }
+    }
+
+    if (logChannel) {
+      await logChannel.send({ embeds: [resultEmbed, respondedEmbed, notRespondedEmbed] });
+    } else {
+      console.warn(`[ActivityTest] No valid log channel found for guild ${guild.name}`);
     }
 
     console.log(`[ActivityTest] Test completed for guild ${guild.name}: ${responded.length}/${allOfficers.size} responded.`);
