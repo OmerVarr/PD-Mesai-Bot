@@ -226,7 +226,7 @@ module.exports = {
     // --- DIGER KOMUTLAR (Defer edilebilir) ---
     await interaction.deferReply({ ephemeral: subcommand !== 'aktif-memurlar' && subcommand !== 'siralama' });
 
-    // Erişim Engeli Kontrolü (Sorgula ve Aktifler için en az Memur veya Yetkili olmalıdır)
+    // Erişim Engeli Kontrolü (Sorgula, Aktif Memurlar ve Sıralama için en az Memur veya Yetkili olmalıdır)
     if (!hasAccess()) {
       return interaction.editReply({ content: t(config, 'common.noOfficerRole', config.roles.officer) });
     }
@@ -247,7 +247,6 @@ module.exports = {
       const normalTime = Math.max(0, totalTime - primeTime);
 
       const activeShift = await Shift.findOne({ userId: targetUser.id, guildId: guild.id, status: 'active' });
-
       const { last24h, last7d, last30d } = await getUserShiftStats(targetUser.id, guild.id);
 
       const embed = new EmbedBuilder()
@@ -309,12 +308,56 @@ module.exports = {
       return interaction.editReply({ embeds: [embed] });
     }
 
+    // C. SIRALAMA (LEADERBOARD)
+    else if (subcommand === 'siralama') {
+      const topGenel = await UserTotal.find({ guildId: guild.id }).sort({ totalTime: -1 }).limit(10);
+      const topPrime = await UserTotal.find({ guildId: guild.id, primeTime: { $gt: 0 } }).sort({ primeTime: -1 }).limit(10);
+
+      if (topGenel.length === 0) {
+        return interaction.editReply({ content: t(config, 'mesai.siralamaEmpty') });
+      }
+
+      const medals = ['🥇', '🥈', '🥉'];
+
+      // 1. Genel Mesai Embed
+      const genelEmbed = new EmbedBuilder()
+        .setTitle('🏆 GENEL MESAİ LİDERLİK TABLOSU')
+        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
+          topGenel.map((userTotal, index) => {
+            const rankEmoji = medals[index] || `🔹 **${index + 1}.**`;
+            return `${rankEmoji} <@${userTotal.userId}> — Toplam Süre: **${formatTime(userTotal.totalTime, config.language)}**`;
+          }).join('\n') +
+          '\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+        .setColor(0xF1C40F)
+        .setTimestamp()
+        .setThumbnail(guild.iconURL())
+        .setFooter({ text: 'BCSO Genel Mesai Sıralaması', iconURL: guild.iconURL() });
+
+      // 2. Prime Mesai Embed
+      const primeEmbed = new EmbedBuilder()
+        .setTitle('🔥 PRİME MESAİ LİDERLİK TABLOSU (20:00 - 23:59)')
+        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
+          (topPrime.length === 0 
+            ? 'ℹ️ Henüz Prime saatlerde (20:00 - 23:59) mesai yapan bulunmamaktadır.' 
+            : topPrime.map((userTotal, index) => {
+                const rankEmoji = medals[index] || `🔹 **${index + 1}.**`;
+                return `${rankEmoji} <@${userTotal.userId}> — Prime Süre: **${formatTime(userTotal.primeTime, config.language)}**`;
+              }).join('\n')) +
+          '\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+        .setColor(0xE74C3C)
+        .setTimestamp()
+        .setThumbnail(guild.iconURL())
+        .setFooter({ text: 'BCSO Prime Mesai Sıralaması', iconURL: guild.iconURL() });
+
+      return interaction.editReply({ embeds: [genelEmbed, primeEmbed] });
+    }
+
     // YETKİLİ DENETİMİ GEREKTİREN DİĞER İŞLEMLER
     if (!isAuthorized()) {
       return interaction.editReply({ content: '❌ Bu komutu kullanmak için gerekli yetkiye sahip değilsiniz.' });
     }
 
-    // C. AYARLA
+    // D. AYARLA
     if (subcommand === 'ayarla') {
       const targetUser = interaction.options.getUser('kullanici');
       const hours = interaction.options.getNumber('saat');
@@ -349,7 +392,7 @@ module.exports = {
       }
     }
 
-    // D. SIFIRLA
+    // E. SIFIRLA
     else if (subcommand === 'sifirla') {
       const targetUser = interaction.options.getUser('kullanici');
 
@@ -379,7 +422,7 @@ module.exports = {
       }
     }
 
-    // E. BAŞLAT (MANUEL GİRİŞ)
+    // F. BAŞLAT (MANUEL GİRİŞ)
     else if (subcommand === 'baslat') {
       const targetUser = interaction.options.getUser('kullanici');
       const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
@@ -428,7 +471,7 @@ module.exports = {
       }
     }
 
-    // F. BİTİR EKLE
+    // G. BİTİR EKLE
     else if (subcommand === 'bitir-ekle') {
       const targetUser = interaction.options.getUser('kullanici');
       const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
@@ -485,7 +528,7 @@ module.exports = {
       }
     }
 
-    // G. BİTİR EKLEME (İPTAL ET)
+    // H. BİTİR EKLEME (İPTAL ET)
     else if (subcommand === 'bitir-ekleme') {
       const targetUser = interaction.options.getUser('kullanici');
 
@@ -527,50 +570,6 @@ module.exports = {
           await logChan.send({ embeds: [logEmbed] });
         }
       }
-    }
-
-    // H. SIRALAMA (LEADERBOARD)
-    else if (subcommand === 'siralama') {
-      const topGenel = await UserTotal.find({ guildId: guild.id }).sort({ totalTime: -1 }).limit(10);
-      const topPrime = await UserTotal.find({ guildId: guild.id, primeTime: { $gt: 0 } }).sort({ primeTime: -1 }).limit(10);
-
-      if (topGenel.length === 0) {
-        return interaction.editReply({ content: t(config, 'mesai.siralamaEmpty') });
-      }
-
-      const medals = ['🥇', '🥈', '🥉'];
-
-      // 1. Genel Mesai Embed
-      const genelEmbed = new EmbedBuilder()
-        .setTitle('🏆 GENEL MESAİ LİDERLİK TABLOSU')
-        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-          topGenel.map((userTotal, index) => {
-            const rankEmoji = medals[index] || `🔹 **${index + 1}.**`;
-            return `${rankEmoji} <@${userTotal.userId}> — Toplam Süre: **${formatTime(userTotal.totalTime, config.language)}**`;
-          }).join('\n') +
-          '\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-        .setColor(0xF1C40F)
-        .setTimestamp()
-        .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'BCSO Genel Mesai Sıralaması', iconURL: guild.iconURL() });
-
-      // 2. Prime Mesai Embed
-      const primeEmbed = new EmbedBuilder()
-        .setTitle('🔥 PRİME MESAİ LİDERLİK TABLOSU (20:00 - 23:59)')
-        .setDescription('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-          (topPrime.length === 0 
-            ? 'ℹ️ Henüz Prime saatlerde (20:00 - 23:59) mesai yapan bulunmamaktadır.' 
-            : topPrime.map((userTotal, index) => {
-                const rankEmoji = medals[index] || `🔹 **${index + 1}.**`;
-                return `${rankEmoji} <@${userTotal.userId}> — Prime Süre: **${formatTime(userTotal.primeTime, config.language)}**`;
-              }).join('\n')) +
-          '\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-        .setColor(0xE74C3C)
-        .setTimestamp()
-        .setThumbnail(guild.iconURL())
-        .setFooter({ text: 'BCSO Prime Mesai Sıralaması', iconURL: guild.iconURL() });
-
-      return interaction.editReply({ embeds: [genelEmbed, primeEmbed] });
     }
   }
 };
