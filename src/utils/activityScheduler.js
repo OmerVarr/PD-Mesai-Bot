@@ -9,8 +9,22 @@ const GuildConfig = require('../models/GuildConfig');
  * @param {import('discord.js').Client} client
  * @param {Object} test - ActivityTest document
  */
-async function finalizeActivityTest(client, test) {
+async function finalizeActivityTest(client, testOrId) {
   try {
+    const testId = (testOrId && testOrId._id) ? testOrId._id : testOrId;
+
+    // Veritabanından güncel test verisini çek (stale closure verilerini önlemek için)
+    const test = await ActivityTest.findById(testId);
+    if (!test) {
+      console.warn(`[ActivityTest] Test belgesi bulunamadı: ${testId}`);
+      return;
+    }
+
+    if (test.status === 'completed') {
+      console.log(`[ActivityTest] Test ${testId} zaten tamamlanmış.`);
+      return;
+    }
+
     const guild = client.guilds.cache.get(test.guildId);
     if (!guild) return;
 
@@ -19,10 +33,12 @@ async function finalizeActivityTest(client, test) {
 
     // Memur rolüne sahip tüm üyeleri çek
     await guild.members.fetch();
-    const officerRoleId = config.roles.officer;
-    const allOfficers = guild.members.cache.filter(m => !m.user.bot && m.roles.cache.has(officerRoleId));
+    const officerRoleId = config.roles ? config.roles.officer : null;
+    const allOfficers = officerRoleId
+      ? guild.members.cache.filter(m => !m.user.bot && m.roles.cache.has(officerRoleId))
+      : guild.members.cache.filter(m => !m.user.bot);
 
-    const respondedSet = new Set(test.responses);
+    const respondedSet = new Set(test.responses || []);
     const responded = [];
     const notResponded = [];
 
@@ -31,6 +47,16 @@ async function finalizeActivityTest(client, test) {
         responded.push(member);
       } else {
         notResponded.push(member);
+      }
+    }
+
+    // Katılan ancak allOfficers listesinde kalmamış üyeleri de katılanlara ekle
+    for (const userId of test.responses || []) {
+      if (!responded.some(m => m.id === userId)) {
+        const extraMember = guild.members.cache.get(userId) || await guild.members.fetch(userId).catch(() => null);
+        if (extraMember) {
+          responded.push(extraMember);
+        }
       }
     }
 
@@ -69,7 +95,7 @@ async function finalizeActivityTest(client, test) {
       .setTitle('📋 AKTİFLİK TESTİ SONUÇLARI')
       .setDescription(
         '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n' +
-        `⏱️ **Test Süresi:** \`${test.duration} saat\`\n` +
+        `⏱️ **Test Süresi:** \`${test.duration === 0 ? '1 Dakika (Test)' : `${test.duration} saat`}\`\n` +
         `📅 **Başlangıç:** <t:${Math.floor(test.startedAt.getTime() / 1000)}:F>\n` +
         `📅 **Bitiş:** <t:${Math.floor(test.endsAt.getTime() / 1000)}:F>\n` +
         `👤 **Başlatan:** <@${test.startedBy}>\n\n` +
@@ -126,16 +152,17 @@ async function finalizeActivityTest(client, test) {
  * Schedules a timeout for a single active test.
  *
  * @param {import('discord.js').Client} client
- * @param {Object} test - ActivityTest document
+ * @param {Object|string} test - ActivityTest document or ID
  */
 function startActivityTestTimeout(client, test) {
+  const testId = test._id || test;
+  const endsAtTime = test.endsAt ? new Date(test.endsAt).getTime() : Date.now();
   const now = Date.now();
-  const endsAt = new Date(test.endsAt).getTime();
-  const delay = Math.max(endsAt - now, 0);
+  const delay = Math.max(endsAtTime - now, 0);
 
-  console.log(`[ActivityTest] Scheduled test ${test._id} to finalize in ${Math.round(delay / 1000)}s`);
+  console.log(`[ActivityTest] Scheduled test ${testId} to finalize in ${Math.round(delay / 1000)}s`);
 
-  setTimeout(() => finalizeActivityTest(client, test), delay);
+  setTimeout(() => finalizeActivityTest(client, testId), delay);
 }
 
 /**
@@ -153,7 +180,7 @@ async function checkPendingTests(client) {
 
       if (endsAt <= now) {
         // Süre çoktan dolmuş, hemen sonuçlandır
-        await finalizeActivityTest(client, test);
+        await finalizeActivityTest(client, test._id);
       } else {
         // Hâlâ aktif, timeout kur
         startActivityTestTimeout(client, test);

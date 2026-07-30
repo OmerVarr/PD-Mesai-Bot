@@ -77,11 +77,17 @@ module.exports = {
             return interaction.reply({ content: '✅ Zaten katılım sağladınız!', ephemeral: true });
           }
 
-          test.responses.push(interaction.user.id);
-          await test.save();
+          // Atomic $addToSet to avoid race condition and mark array modified
+          const updatedTest = await ActivityTest.findByIdAndUpdate(
+            test._id,
+            { $addToSet: { responses: interaction.user.id } },
+            { new: true }
+          );
+
+          const count = updatedTest ? updatedTest.responses.length : test.responses.length + 1;
 
           await interaction.reply({
-            content: `✅ Katılımınız başarıyla kaydedildi! (**${test.responses.length}** kişi katıldı)`,
+            content: `✅ Katılımınız başarıyla kaydedildi! (**${count}** kişi katıldı)`,
             ephemeral: true
           });
         } catch (error) {
